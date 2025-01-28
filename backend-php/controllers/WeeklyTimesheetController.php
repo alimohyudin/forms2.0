@@ -5,9 +5,9 @@ require 'models/EmployeesModel.php';
 require 'models/HoursWorkedModel.php';
 
 class WeeklyTimesheetController {
-    public function get(week_start_date = null) {
+    public function getAll() {
         // Fetch data from WeeklyTimesheetModel
-        $timesheetModel = new WeeklyTimesheetModel();    
+        $timesheetModel = new WeeklyTimesheetModel();
         $timesheetData = $timesheetModel->getAll();
     
         // Fetch data from JobsModel
@@ -67,6 +67,158 @@ class WeeklyTimesheetController {
     
         // Return the data as JSON
         echo json_encode($response);
+    }
+
+    public function getSingle($week_start_date){
+        if (!$week_start_date) {
+            echo json_encode(['error' => 'week_start_date is required']);
+            return;
+        }
+    
+        // Fetch data for the given week_start_date from the WeeklyTimesheetModel
+        $timesheetModel = new WeeklyTimesheetModel();
+        $timesheetData = $timesheetModel->getByWeek($week_start_date);
+
+        error_log(json_encode($timesheetData));
+        
+        // Check if timesheet data exists
+        if (empty($timesheetData)) {
+            echo json_encode(['error' => 'Timesheet not found for the given week start date']);
+            return;
+        }
+        
+        // Fetch jobs related to the timesheet's week_start_date
+        $jobsModel = new JobsModel();
+        $jobsData = $jobsModel->getByWeek($week_start_date);
+        
+        // If no jobs found for this timesheet, return empty response
+        if (empty($jobsData)) {
+            echo json_encode(['error' => 'No jobs found for the given timesheet']);
+            return;
+        }
+        
+        // Preprocess employees and hours worked data for the relevant jobs
+        $employeesModel = new EmployeesModel();
+        //print array_column($jobsData, 'job_id')
+        $employeesData = $employeesModel->getByJobs(array_column($jobsData, 'job_id'));
+        
+        // Fetch hours worked data for employees
+        $hoursWorkedModel = new HoursWorkedModel();
+        $hoursWorkedData = $hoursWorkedModel->getByEmployeeIds(array_column($employeesData, 'employee_id'));
+    
+        // Group hours worked by employee_id
+        $hoursByEmployee = [];
+        foreach ($hoursWorkedData as $hours) {
+            $hoursByEmployee[$hours['employee_id']][] = $hours;
+        }
+    
+        // Group employees by job_id
+        $employeesByJob = [];
+        foreach ($employeesData as $employee) {
+            $employeesByJob[$employee['job_id']][] = $employee;
+        }
+    
+        // Now prepare the final nested data structure
+        foreach ($jobsData as &$job) {
+            // Get employees for this job
+            $job['employees'] = isset($employeesByJob[$job['job_id']]) ? $employeesByJob[$job['job_id']] : [];
+            
+            foreach ($job['employees'] as &$employee) {
+                // Get hours worked for this employee
+                $employee['hours_worked'] = isset($hoursByEmployee[$employee['employee_id']]) ? $hoursByEmployee[$employee['employee_id']] : [];
+            }
+        }
+    
+        // Add jobs to the timesheet
+        $timesheetData['jobs'] = $jobsData;
+        
+        // Return the data as JSON
+        echo json_encode($timesheetData);        
+    }
+    
+    public function put($inputData) {
+        $week_start_date = $inputData['week_start_date'];
+        if (!$week_start_date || empty($inputData)) {
+            echo json_encode(['error' => 'week_start_date and input data are required']);
+            return;
+        }
+    
+        // Fetch data for the given week_start_date from the WeeklyTimesheetModel
+        $timesheetModel = new WeeklyTimesheetModel();
+        
+        $timesheetModel->update($inputData);
+
+        $timesheetData = $timesheetModel->getByWeek($week_start_date);
+
+        // update timesheet data
+        
+        
+        // Check if the timesheet exists
+        if (empty($timesheetData)) {
+            echo json_encode(['error' => 'Timesheet not found for the given week start date']);
+            return;
+        }
+        
+        // Fetch jobs related to the timesheet's week_start_date
+        $jobsModel = new JobsModel();
+        $existingJobsData = $jobsModel->getByWeek($week_start_date);
+        
+        // Create an array to keep track of updated jobs
+        $updatedJobs = [];
+        
+        // Now handle updating the employees
+        $employeesModel = new EmployeesModel();
+        $hoursWorkedModel = new HoursWorkedModel();
+    
+        // Loop through the updated jobs and process employees
+        foreach($inputData['jobs'] as $inputJob){
+            $jobId = $inputJob['job_id'];
+            $jobExists = false;
+
+            $jobData = $jobsModel->getById($jobId);
+            if($jobData){
+                $jobData['job_name'] = $inputJob['job_name'];
+                $jobsModel->update($jobId, $jobData);
+                $jobExists = true;
+            }
+            if(!$jobExists){
+                $newJob = [
+                    'job_id' => $jobId,
+                    'week_start_date' => $week_start_date,
+                    'job_name' => $inputJob['job_name']
+                ];
+                $jobsModel->create($newJob);
+            }
+            
+            // Now handle updating the employees for this job
+            foreach($inputJob['employees'] as $inputEmployee){
+
+                if(isset($inputEmployee['employee_id'])){
+                    $employeeId = $inputEmployee['employee_id'];
+                    $employeeName = $inputEmployee['employee_name'];
+                    $jobId = $inputJob['job_id'];
+
+                    $employeeData = $employeesModel->getById($employeeId);
+                    if($employeeData){
+                        $employeeData['employee_name'] = $employeeName;
+                        $employeesModel->update($employeeId, $employeeData);
+                    }
+                }else{
+                    $newEmployee = [
+                        'job_id' => $jobId,
+                        'employee_name' => $inputEmployee['employee_name']
+                    ];
+                    $employeesModel->create($newEmployee);
+                }
+            }
+        }
+    
+        // Update the timesheet with the new jobs
+        $timesheetData['jobs'] = $jobsModel->getByWeek($week_start_date);
+        // $timesheetModel->update( $timesheetData);  // Assuming update method exists
+    
+        // Return the updated data as JSON
+        echo json_encode($timesheetData);
     }
     
     

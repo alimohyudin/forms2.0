@@ -78,6 +78,22 @@ class WeeklyTimesheetModel {
             echo "Error creating resource: " . $e->getMessage();
         }
     }
+
+    public function update($data) {
+        try {
+            // Update the week in the weekly_timesheet table
+            $stmt = $this->db->prepare('UPDATE weekly_timesheet SET foreman_name = :foreman_name WHERE week_start_date = :week_start_date');
+            $stmt->execute([
+                'week_start_date' => $data['week_start_date'],
+                'foreman_name' => $data['foreman_name'],
+            ]);
+            // error_log("Updated foreman_name for week ");
+            // error_log(json_encode($data));
+            // echo "Resource updated successfully.";
+        } catch (PDOException $e) {
+            // echo "Error updating resource: " . $e->getMessage();            
+        }
+    }
     
     public function delete($id) {
         try {

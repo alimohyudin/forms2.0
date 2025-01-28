@@ -15,9 +15,19 @@ class Router {
                 require 'controllers/WeeklyTimesheetController.php';
                 $controller = new WeeklyTimesheetController();
                 if ($method == 'GET') {
-                    $controller->get();
+                    //if has query parameters
+                    $params = $_GET;
+                    if (count($params) > 0) {
+                        error_log('Params: ' . json_encode($params));
+                        $controller->getSingle($params["week_start_date"]);
+                    } else {
+                        $controller->getAll();
+                    }
                 } elseif ($method == 'POST') {
                     $controller->post();
+                } elseif ($method == 'PUT') {
+                    $input = json_decode(file_get_contents('php://input'), true);
+                    $controller->put($input);
                 }
                 break;
             case '/api/resource':

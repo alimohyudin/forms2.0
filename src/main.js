@@ -20,7 +20,7 @@ Vue.prototype.$socket = "";
 Vue.prototype.$local = {
     appType: 'web',
     userData: {},
-    server: 'https://cryptoauto.top/api',
+    server: 'http://localhost/forms2.0/backend-php/api',
     //server: 'https://api.mcquare1.net/api',
     //server: 'http://149.102.138.126:7861/api',
     //server: process.env.NODE_ENV === 'development' ? 'http://localhost:7861/api' : 'https://cryptoauto.top/api',
@@ -30,14 +30,7 @@ Vue.prototype.$local = {
     isExchange: localStorage.getItem('isExchange') || '',
     getRequest: function (subUrl) {
         //console.log('hello get request' + this.server)
-        return axios.get(this.server + subUrl)
-            .then(function (data) {
-                //console.log(data)
-            })
-            .catch(function (err) {
-                //console.log('error')
-                console.log(err)
-            })
+        return axios.get(this.server + subUrl);
     },
     postRequest: function (subUrl, formData, that) {
         //console.log('hello post request')
@@ -96,6 +89,18 @@ Vue.prototype.$local = {
                 reject(err);
             });
         });
+    },
+    putRequest: function (subUrl, formData, that) {
+        //console.log('hello post request')
+        let config = {
+            headers: { 'Authorization': 'bearer ' + this.token },
+        }
+
+        return axios.put(
+            this.server + subUrl,
+            formData,
+            config,
+        );
     },
     emptyUserData: function () {
         for (let member in this.userData) {

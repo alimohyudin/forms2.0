@@ -32,9 +32,9 @@ class JobsModel  {
 
     public function update($id, $data) {
         try {
-            $stmt = $this->db->prepare('UPDATE jobs SET job_name = :job_name WHERE id = :id');
+            $stmt = $this->db->prepare('UPDATE jobs SET job_name = :job_name WHERE job_id = :job_id');
             $stmt->execute([
-                'id' => $id,
+                'job_id' => $id,
                 'job_name' => $data['job_name'],
             ]);
         } catch (PDOException $e) {
@@ -54,15 +54,27 @@ class JobsModel  {
         }
     }
 
-    public function get($id) {
+    public function getById($id) {
         try {
-            $stmt = $this->db->prepare('SELECT * FROM jobs WHERE id = :id');
-            $stmt->execute(['id' => $id]);
+            $stmt = $this->db->prepare('SELECT * FROM jobs WHERE job_id = :job_id');
+            $stmt->execute(['job_id' => $id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             // Handle query errors
             echo "Error fetching job: " . $e->getMessage();
             return null;
+        }
+    }
+
+    public function getByWeek($week_start_date) {
+        try {
+            $stmt = $this->db->prepare('SELECT * FROM jobs WHERE week_start_date = :week_start_date');
+            $stmt->execute(['week_start_date' => $week_start_date]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // Handle query errors
+            echo "Error fetching jobs: " . $e->getMessage();
+            return [];
         }
     }
 

@@ -18,16 +18,16 @@
 
                 <div class="col-12 px-0">
                   <label for="startDateInput" class="form-label">Week Start Date: </label>
-                  <input type="text" name="email" class="form-control" v-model="startDate">
+                  <input type="text" name="email" class="form-control" v-model="timesheet.week_start_date">
                 </div>
                 <div class="row px-0">
                   <div class="col-5">
                     <label for="startDateInput" class="form-label">Week End Date:&nbsp;</label>
-                    <input type="text" name="email" class="form-control" v-model="startDate">
+                    <input type="text" name="email" class="form-control" v-model="timesheet.week_end_date">
                   </div>
                   <div class="col-6">
                     <label for="startDateInput" class="form-label">Foreman: </label>
-                    <input type="text" name="email" class="form-control" v-model="startDate">
+                    <input type="text" name="email" class="form-control" v-model="timesheet.foreman_name">
                   </div>
                 </div>
 
@@ -49,10 +49,10 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <template v-for="(job, index) in jobs">
-                        <tr class="jobname-row">
+                      <template v-for="(job, index) in timesheet.jobs" >
+                        <tr class="jobname-row" :key="job.job_id">
                           <td>
-                            <span>JOB NAME</span>
+                            <span>{{ job.job_name }}</span>
                           </td>
                           <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
                           <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
@@ -63,9 +63,9 @@
                           <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
                           <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
                         </tr>
-                        <tr v-for="(jobname, jindex) in job.names" :key="jobname.id">
+                        <tr v-for="(employee, jindex) in job.employees" :key="employee.employee_id">
                           <td>
-                            <span>{{ jobname.name }}</span>
+                            <span>{{ employee.employee_name }}</span>
                           </td>
                           <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
                           <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
@@ -100,7 +100,7 @@
               <div class="col-6">
                 <button>&lt; Previous</button>
                 <button>Next &gt;</button>
-                <router-link to="/weekly/edit">
+                <router-link :to="'/weekly/edit/'+ timesheet.week_start_date" >
                   <button style="margin-left: 10px;">Edit</button>
                 </router-link>
               </div>
@@ -129,128 +129,36 @@
     },
     data() {
       return {
-        jobs: [
-          {
-            id: 1,
-            names: [{
-              id: 1,
-              name: 'Manuel Arroyo',
-            },
-            {
-              id: 2,
-              name: 'Brandon Medina',
-            },
-            {
-              id: 3,
-              name: 'Oriando Suarez',
-            }]
-          }, {
-            id: 2,
-            names: [{
-              id: 1,
-              name: 'Juan Arroyo Dominguez',
-            },
-            {
-              id: 2,
-              name: 'Juan Arroyo Jr',
-            },
-            {
-              id: 3,
-              name: 'Jimmy Rios',
-            },
-            {
-              id: 4,
-              name: 'Douglas Sumrall',
-            },
-            {
-              id: 5,
-              name: 'Jairo Lazada',
-            },
-            {
-              id: 6,
-              name: 'Christian V Lopez',
-            }]
-          },
-          {
-            id: 3,
-            names: [{
-              id: 1,
-              name: 'Brian Brewer',
-            },
-            {
-              id: 2,
-              name: 'Jose Andrade Gasca',
-            },
-            {
-              id: 3,
-              name: 'Bayardo Solorzano Villalto',
-            },
-            {
-              id: 4,
-              name: 'Rodrigo Rodriguez Reyna',
-            },
-            {
-              id: 5,
-              name: 'Brandon Molden',
-            }]
-          },
-          {
-            id: 4,
-            names: [{
-              id: 1,
-              name: 'Jacinto Lopez',
-            },
-            {
-              id: 2,
-              name: 'Josue Tomas Lopeza',
-            },
-            {
-              id: 3,
-              name: 'Juan Perez',
-            },
-            {
-              id: 4,
-              name: 'Yoel Hernandez Gonzalez',
-            }]
-          }
-        ]
+        timesheet: {},
       };
     },
     methods: {
-      login() {
-        let formData = $("#login_form").serialize();
-        //console.log(formData);
+      getThisWeekTimesheet() {        
         let that = this;
-        this.$local
-          .postRequest("/user/login", formData)
-          .then(function (data) {
-            //console.log(data);
-            //that.users = data.users;
-            if (data.accountType === 'admin') {
-              that.$router.push({ name: "admin-dashboard-page" });
-            } else {
-              that.$router.push({ name: "user-dashboard-page" });
-            }
+        //calculate week start date
+        let week_start_date = new Date();
+        week_start_date.setDate(week_start_date.getDate() - week_start_date.getDay() + 1);
+        //format to 2025-01-28
+        week_start_date = week_start_date.toISOString().split('T')[0];        
+        console.log(week_start_date);
 
+        this.$local
+          .getRequest("/weeklytimesheet?week_start_date="+week_start_date)
+          .then(function (data) {
+            console.log(data);
+            that.timesheet = data.data;
             return;
           })
           .catch(function (msg) {
             console.log(msg);
-            if (msg && msg.toString().includes('Could not find your account'))
-              that.$toaster.error("Email/password is wrong.");
-            else if (msg && msg.toString().includes('Verify your email first')) {
-              that.$toaster.error("Verify Email first.");
-              that.$router.push({ name: "verify-email-page", params: { email: that.email } });
-            }
-            else
-              that.$toaster.error(msg);
-            return;
+            that.$toaster.error(msg);
           });
       },
     },
     created: function () {
       localStorage.removeItem('user_token');
       global.vm.$local.token = '';
+      this.getThisWeekTimesheet();
     }
   };
 </script>

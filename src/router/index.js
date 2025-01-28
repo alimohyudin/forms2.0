@@ -16,9 +16,10 @@ export default new Router({
             component: require('../components/WeeklyTimesheet').default,
         },
         {
-            path: '/weekly/edit',
+            path: '/weekly/edit/:week_start_date',
             name: 'edit-weekly-page',
             component: require('../components/EditWeeklyTimesheet').default,
+            props: true
         },
         /* ,
         {

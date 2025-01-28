@@ -15,9 +15,9 @@
 
               <!-- Loop through each job -->
               <!-- Loop through each job -->
-              <div v-for="(job, index) in jobs" :key="job.id" class="job-card">
+              <div v-for="(job, index) in timesheet.jobs" :key="job.job_id" class="job-card">
                 <div class="job-header">
-                  <h2>{{ getJobName(job.id) }}</h2>
+                  <h2>{{ getJobName(job.job_id) }}</h2>
                   <button @click="deleteJob(index)" class="delete-btn">Delete Job</button>
                 </div>
 
@@ -25,8 +25,8 @@
                 <div class="employee-list">
                   <h3>Employees</h3>
                   <ul>
-                    <li v-for="(employee, employeeIndex) in job.names" :key="employee.id" class="employee-item">
-                      {{ employee.name }}
+                    <li v-for="(employee, employeeIndex) in job.employees" :key="employee.employee_id" class="employee-item">
+                      {{ employee.employee_name }}
                       <button @click="deleteEmployee(index, employeeIndex)" class="delete-btn">Delete Employee</button>
                     </li>
                   </ul>
@@ -50,7 +50,7 @@
                   <button>Weekly Timesheet</button>
                 </router-link>
               </div>
-              <div class="col-6" style="text-align: right;">
+              <div class="col-6" style="text-align: right;" @click="save">
                 <button>Save</button>
               </div>
             </div>
@@ -73,162 +73,81 @@
     components: {
       CommonFooter
     },
+    props: ['week_start_date'],
     data() {
       return {
-        jobs: [
-          {
-            id: 1,
-            names: [{
-              id: 1,
-              name: 'Manuel Arroyo',
-            },
-            {
-              id: 2,
-              name: 'Brandon Medina',
-            },
-            {
-              id: 3,
-              name: 'Oriando Suarez',
-            }]
-          }, {
-            id: 2,
-            names: [{
-              id: 1,
-              name: 'Juan Arroyo Dominguez',
-            },
-            {
-              id: 2,
-              name: 'Juan Arroyo Jr',
-            },
-            {
-              id: 3,
-              name: 'Jimmy Rios',
-            },
-            {
-              id: 4,
-              name: 'Douglas Sumrall',
-            },
-            {
-              id: 5,
-              name: 'Jairo Lazada',
-            },
-            {
-              id: 6,
-              name: 'Christian V Lopez',
-            }]
-          },
-          {
-            id: 3,
-            names: [{
-              id: 1,
-              name: 'Brian Brewer',
-            },
-            {
-              id: 2,
-              name: 'Jose Andrade Gasca',
-            },
-            {
-              id: 3,
-              name: 'Bayardo Solorzano Villalto',
-            },
-            {
-              id: 4,
-              name: 'Rodrigo Rodriguez Reyna',
-            },
-            {
-              id: 5,
-              name: 'Brandon Molden',
-            }]
-          },
-          {
-            id: 4,
-            names: [{
-              id: 1,
-              name: 'Jacinto Lopez',
-            },
-            {
-              id: 2,
-              name: 'Josue Tomas Lopeza',
-            },
-            {
-              id: 3,
-              name: 'Juan Perez',
-            },
-            {
-              id: 4,
-              name: 'Yoel Hernandez Gonzalez',
-            }]
-          }
-        ]
+        timesheet: {},
+        newJobName: '',
+        newEmployeeName: ''
+
       };
     },
     methods: {
       // Get Job Name by Job ID
       getJobName(jobId) {
-        const job = this.jobs.find(j => j.id === jobId);
-        return `Job ${jobId}`;
+        const job = this.timesheet.jobs.find((j)=> j.job_id == jobId);
+        if (!job) return 'Job Not Found';
+        return `${job.job_name}`;
       },
 
       // Add a new Job
       addJob() {
         const newJob = {
-          id: this.jobs.length + 1,
+          // id: this.jobs.length + 1,
           names: []
         };
-        this.jobs.push(newJob);
+        this.timesheet.jobs.push(newJob);
       },
 
       // Delete a Job
       deleteJob(index) {
-        this.jobs.splice(index, 1);
+        this.timesheet.jobs.splice(index, 1);
       },
 
       // Add Employee to Job
       addEmployee(jobIndex) {
-        const newEmployeeId = this.jobs[jobIndex].names.length + 1;
-        const newEmployee = { id: newEmployeeId, name: 'New Employee' };
-        this.jobs[jobIndex].names.push(newEmployee);
+        console.log('addEmployee', jobIndex);
+        // const newEmployeeId = this.jobs[jobIndex].names.length + 1;
+        const newEmployee = { employee_name: this.newEmployeeName };
+        this.timesheet.jobs[jobIndex].employees.push(newEmployee);
       },
 
       // Delete Employee from Job
       deleteEmployee(jobIndex, employeeIndex) {
-        this.jobs[jobIndex].names.splice(employeeIndex, 1);
+        this.timesheet.jobs[jobIndex].employees.splice(employeeIndex, 1);
       },
 
-      login() {
-        let formData = $("#login_form").serialize();
+      save() {
         //console.log(formData);
         let that = this;
         this.$local
-          .postRequest("/user/login", formData)
+          .putRequest("/weeklytimesheet", this.timesheet)
           .then(function (data) {
-            //console.log(data);
-            //that.users = data.users;
-            if (data.accountType === 'admin') {
-              that.$router.push({ name: "admin-dashboard-page" });
-            } else {
-              that.$router.push({ name: "user-dashboard-page" });
-            }
-
+            console.log(data);
+            that.$toaster.success("Timesheet saved successfully");
             return;
           })
           .catch(function (msg) {
             console.log(msg);
-            if (msg && msg.toString().includes('Could not find your account'))
-              that.$toaster.error("Email/password is wrong.");
-            else if (msg && msg.toString().includes('Verify your email first')) {
-              that.$toaster.error("Verify Email first.");
-              that.$router.push({ name: "verify-email-page", params: { email: that.email } });
-            }
-            else
-              that.$toaster.error(msg);
+            that.$toaster.error(msg);
             return;
           });
       },
     },
     created: function () {
+      let that = this;
+      // console.log('created');
+      // console.log("week_start_date: ", this.week_start_date);
       localStorage.removeItem('user_token');
       global.vm.$local.token = '';
+      //get request to http://localhost/forms2.0/backend-php/api/weeklytimesheet
+      this.$local.getRequest('/weeklytimesheet?week_start_date='+this.week_start_date).then(function(data){
+        console.log("timesheetData", data.data);
+        that.timesheet = data.data;
+
+      }).catch(function(msg){
+        console.log(msg);
+      });
     }
   };
 </script>

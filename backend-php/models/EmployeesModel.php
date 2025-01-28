@@ -26,9 +26,9 @@ class EmployeesModel {
         }
     }
 
-    public function get($id) {
+    public function getById($id) {
         try {
-            $stmt = $this->db->prepare('SELECT * FROM employees WHERE id = :id');
+            $stmt = $this->db->prepare('SELECT * FROM employees WHERE employee_id = :id');
             $stmt->execute(['id' => $id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -38,10 +38,23 @@ class EmployeesModel {
         }
     }
 
-    public function getEmployeesByJobId($job_id) {
+    public function getByJob($job_id) {
         try {
             $stmt = $this->db->prepare('SELECT * FROM employees WHERE job_id = :job_id');
             $stmt->execute(['job_id' => $job_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // Handle query errors
+            echo "Error fetching employees: " . $e->getMessage();
+            return [];
+        }
+    }
+
+    public function getByJobs($job_ids) {
+        try {
+            $in = str_repeat('?,', count($job_ids) - 1) . '?';
+            $stmt = $this->db->prepare("SELECT * FROM employees WHERE job_id IN ($in)");
+            $stmt->execute($job_ids);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             // Handle query errors
@@ -65,9 +78,9 @@ class EmployeesModel {
 
     public function update($id, $data) {
         try {
-            $stmt = $this->db->prepare('UPDATE employees SET employee_name = :employee_name WHERE id = :id');
+            $stmt = $this->db->prepare('UPDATE employees SET employee_name = :employee_name WHERE employee_id = :employee_id');
             $stmt->execute([
-                'id' => $id,
+                'employee_id' => $id,
                 'employee_name' => $data['employee_name'],
             ]);
         } catch (PDOException $e) {
@@ -79,9 +92,9 @@ class EmployeesModel {
     public function delete($id) {
         try {
             // Update the deleted_at timestamp to mark the record as deleted
-            $stmt = $this->db->prepare('UPDATE employees SET deleted_at = NOW() WHERE id = :id');
+            $stmt = $this->db->prepare('UPDATE employees SET deleted_at = NOW() WHERE employee_id = :employee_id');
             $stmt->execute([
-                'id' => $id,
+                'employee_id' => $id,
             ]);
         } catch (PDOException $e) {
             // Handle query errors

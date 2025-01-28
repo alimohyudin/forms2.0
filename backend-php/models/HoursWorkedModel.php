@@ -59,7 +59,7 @@ class HoursWorkedModel {
     }
 
     // Get a specific job by its ID
-    public function get($id) {
+    public function getById($id) {
         try {
             $stmt = $this->db->prepare('SELECT * FROM hours_worked WHERE id = :id AND deleted_at IS NULL');
             $stmt->execute(['id' => $id]);
@@ -72,10 +72,23 @@ class HoursWorkedModel {
     }
 
     // Get jobs for a specific employee
-    public function getJobsByEmployee($employee_id) {
+    public function getByEmployee($employee_id) {
         try {
             $stmt = $this->db->prepare('SELECT * FROM hours_worked WHERE employee_id = :employee_id AND deleted_at IS NULL');
             $stmt->execute(['employee_id' => $employee_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // Handle query errors
+            echo "Error fetching jobs: " . $e->getMessage();
+            return [];
+        }
+    }
+
+    public function getByEmployeeIds($employeeIds) {
+        try {
+            $in = str_repeat('?,', count($employeeIds) - 1) . '?';
+            $stmt = $this->db->prepare("SELECT * FROM hours_worked WHERE employee_id IN ($in) AND deleted_at IS NULL");
+            $stmt->execute($employeeIds);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             // Handle query errors

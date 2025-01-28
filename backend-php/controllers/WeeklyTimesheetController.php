@@ -2,9 +2,10 @@
 require 'models/WeeklyTimesheetModel.php';
 require 'models/JobsModel.php';
 require 'models/EmployeesModel.php';
+require 'models/HoursWorkedModel.php';
 
 class WeeklyTimesheetController {
-    public function get() {
+    public function get(week_start_date = null) {
         // Fetch data from WeeklyTimesheetModel
         $timesheetModel = new WeeklyTimesheetModel();    
         $timesheetData = $timesheetModel->getAll();
@@ -16,6 +17,10 @@ class WeeklyTimesheetController {
         // Fetch data from EmployeesModel
         $employeesModel = new EmployeesModel();
         $employeesData = $employeesModel->getAll();
+
+        // Fetch data from HoursworkedModel
+        $hourWorkedModel = new HoursWorkedModel();
+        $hourWorkedData = $hourWorkedModel->getAll();
     
         // Prepare final response data
         $response = [];
@@ -27,7 +32,7 @@ class WeeklyTimesheetController {
     
             // Filter jobs based on timesheet week range
             $filteredJobs = array_filter($jobsData, function ($job) use ($weekStartDate, $weekEndDate) {
-                return $job['week_start_date'] >= $weekStartDate ;
+                return $job['week_start_date'] >= $weekStartDate;
             });
     
             // Get employee data based on filtered job IDs
@@ -35,12 +40,28 @@ class WeeklyTimesheetController {
             $filteredEmployees = array_filter($employeesData, function ($employee) use ($jobIds) {
                 return in_array($employee['job_id'], $jobIds);
             });
+            
+            // Group employees by job_id
+            $employeesByJob = [];
+            foreach ($filteredEmployees as $employee) {
+                $employeeId = $employee['employee_id'];
+                $employeeHoursWorked = array_filter($hourWorkedData, function ($hoursWorked) use ($employeeId) {
+                    return $hoursWorked['employee_id'] == $employeeId;
+                });
+                $employee['hours_worked'] = array_values($employeeHoursWorked);
+                $employeesByJob[$employee['job_id']][] = $employee;
+            }
+    
+            // Add employees to their respective jobs
+            foreach ($filteredJobs as &$job) {
+                $jobId = $job['job_id'];
+                $job['employees'] = isset($employeesByJob[$jobId]) ? $employeesByJob[$jobId] : [];
+            }
     
             // Add timesheet, jobs, and employee data to response
             $response[] = [
                 'timesheet' => $timesheet,
-                'jobs' => array_values($filteredJobs),
-                'employees' => array_values($filteredEmployees)
+                'jobs' => array_values($filteredJobs)
             ];
         }
     

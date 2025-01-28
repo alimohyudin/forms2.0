@@ -23,7 +23,7 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-config.php
+/backend-php/config.php
 
 #package-lock
 package-lock.json

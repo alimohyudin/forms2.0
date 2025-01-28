@@ -25,6 +25,19 @@ class WeeklyTimesheetModel {
         }
     }
 
+    public function getByWeek($week_start_date) {
+        try {
+            $stmt = $this->db->prepare('SELECT * FROM weekly_timesheet WHERE week_start_date = :week_start_date');
+            $stmt->execute([
+                'week_start_date' => $week_start_date,
+            ]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Error fetching weekly_timesheet: " . $e->getMessage();
+            return [];
+        }
+    }
+
     public function create($data) {
         try {
             // Insert the new week into the weekly_timesheet table

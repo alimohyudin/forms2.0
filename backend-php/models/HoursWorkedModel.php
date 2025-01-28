@@ -1,8 +1,7 @@
 <?php
 require_once('config.php');
 
-
-class JobsModel  {
+class HoursWorkedModel  {
     private $db;
 
     public function __construct() {
@@ -19,10 +18,10 @@ class JobsModel  {
 
     public function create($data) {
         try {
-            $stmt = $this->db->prepare('INSERT INTO jobs (week_start_date, job_name) VALUES (:week_start_date, :job_name)');
+            $stmt = $this->db->prepare('INSERT INTO hours_worked (employee_id, hours_worked) VALUES (:employee_id, :hours_worked)');
             $stmt->execute([
-                'week_start_date' => $data['week_start_date'],
-                'job_name' => $data['job_name'],
+                'employee_id' => $data['employee_id'],
+                'hours_worked' => $data['hours_worked'],
             ]);
         } catch (PDOException $e) {
             // Handle query errors
@@ -32,7 +31,7 @@ class JobsModel  {
 
     public function update($id, $data) {
         try {
-            $stmt = $this->db->prepare('UPDATE jobs SET job_name = :job_name WHERE id = :id');
+            $stmt = $this->db->prepare('UPDATE hours_worked SET job_name = :job_name WHERE id = :id');
             $stmt->execute([
                 'id' => $id,
                 'job_name' => $data['job_name'],

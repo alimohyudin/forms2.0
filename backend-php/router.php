@@ -1,5 +1,6 @@
 <?php
 require_once('config.php');
+// require_once 'path/to/ResourceModel.php';
 
 class Router {
     public function route() {
@@ -10,6 +11,15 @@ class Router {
         $uri = str_replace(BASE_DIRECTORY, '', $uri);
         error_log('URI: ' . $uri);
         switch ($uri) {
+            case '/api/weeklytimesheet':
+                require 'controllers/WeeklyTimesheetController.php';
+                $controller = new WeeklyTimesheetController();
+                if ($method == 'GET') {
+                    $controller->get();
+                } elseif ($method == 'POST') {
+                    $controller->post();
+                }
+                break;
             case '/api/resource':
                 error_log('Resource');
                 require 'controllers/ResourceController.php';

@@ -20,12 +20,10 @@ Vue.prototype.$socket = "";
 Vue.prototype.$local = {
     appType: 'web',
     userData: {},
-    server: 'http://localhost/forms2.0/backend-php/api',
-    //server: 'https://api.mcquare1.net/api',
-    //server: 'http://149.102.138.126:7861/api',
-    //server: process.env.NODE_ENV === 'development' ? 'http://localhost:7861/api' : 'https://cryptoauto.top/api',
-    //server: 'http://31.42.188.108:7861/api',
-    //server: 'http://94.176.238.154:7861/api',//close branch
+    
+    // server: 'http://localhost/forms2.0/backend-php/api',
+    server: 'https://tclmunderground.com/forms2.0/backend-php/api',
+
     token: localStorage.getItem('user_token') || '',
     isExchange: localStorage.getItem('isExchange') || '',
     getRequest: function (subUrl) {

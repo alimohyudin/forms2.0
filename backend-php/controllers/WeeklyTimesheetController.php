@@ -149,83 +149,85 @@ class WeeklyTimesheetController {
             return;
         }
     
-        // Fetch data for the given week_start_date from the WeeklyTimesheetModel
         $timesheetModel = new WeeklyTimesheetModel();
-        
         $timesheetModel->update($inputData);
-
+    
         $timesheetData = $timesheetModel->getByWeek($week_start_date);
-
-        // update timesheet data
-        
-        
-        // Check if the timesheet exists
         if (empty($timesheetData)) {
             echo json_encode(['error' => 'Timesheet not found for the given week start date']);
             return;
         }
-        
-        // Fetch jobs related to the timesheet's week_start_date
-        $jobsModel = new JobsModel();
-        $existingJobsData = $jobsModel->getByWeek($week_start_date);
-        
-        // Create an array to keep track of updated jobs
-        $updatedJobs = [];
-        
-        // Now handle updating the employees
-        $employeesModel = new EmployeesModel();
-        $hoursWorkedModel = new HoursWorkedModel();
     
-        // Loop through the updated jobs and process employees
-        foreach($inputData['jobs'] as $inputJob){
-            $jobId = $inputJob['job_id'];
-            $jobExists = false;
-
-            $jobData = $jobsModel->getById($jobId);
-            if($jobData){
-                $jobData['job_name'] = $inputJob['job_name'];
-                $jobsModel->update($jobId, $jobData);
-                $jobExists = true;
+        $jobsModel = new JobsModel();
+        $employeesModel = new EmployeesModel();
+    
+        // Fetch existing jobs from the database
+        $existingJobsData = $jobsModel->getByWeek($week_start_date);
+        $existingJobIds = array_column($existingJobsData, 'job_id');
+    
+        // Extract job IDs from inputData
+        $inputJobIds = array_column($inputData['jobs'], 'job_id');
+    
+        // Delete jobs that are missing from inputData
+        foreach ($existingJobIds as $existingJobId) {
+            if (!in_array($existingJobId, $inputJobIds)) {
+                $jobsModel->delete($existingJobId); // Delete job
+                $employeesModel->deleteByJobId($existingJobId); // Delete associated employees
             }
-            if(!$jobExists){
-                $newJob = [
+        }
+    
+        // Process jobs from inputData
+        foreach ($inputData['jobs'] as $inputJob) {
+            $jobId = $inputJob['job_id'];
+            
+            if (in_array($jobId, $existingJobIds)) {
+                // Job exists -> Update
+                $jobsModel->update($jobId, ['job_name' => $inputJob['job_name']]);
+            } else {
+                // Job doesn't exist -> Create new
+                $jobsModel->create([
                     'job_id' => $jobId,
                     'week_start_date' => $week_start_date,
                     'job_name' => $inputJob['job_name']
-                ];
-                $jobsModel->create($newJob);
+                ]);
             }
-            
-            // Now handle updating the employees for this job
-            foreach($inputJob['employees'] as $inputEmployee){
-
-                if(isset($inputEmployee['employee_id'])){
+    
+            // Fetch existing employees for this job
+            $existingEmployeesData = $employeesModel->getByJobId($jobId);
+            $existingEmployeeIds = array_column($existingEmployeesData, 'employee_id');
+            $inputEmployeeIds = array_column($inputJob['employees'], 'employee_id');
+    
+            // Delete employees that are missing in inputData
+            foreach ($existingEmployeeIds as $existingEmployeeId) {
+                if (!in_array($existingEmployeeId, $inputEmployeeIds)) {
+                    $employeesModel->delete($existingEmployeeId);
+                }
+            }
+    
+            // Process employees for this job
+            foreach ($inputJob['employees'] as $inputEmployee) {
+                if (!empty($inputEmployee['employee_id'])) {
                     $employeeId = $inputEmployee['employee_id'];
-                    $employeeName = $inputEmployee['employee_name'];
-                    $jobId = $inputJob['job_id'];
-
-                    $employeeData = $employeesModel->getById($employeeId);
-                    if($employeeData){
-                        $employeeData['employee_name'] = $employeeName;
-                        $employeesModel->update($employeeId, $employeeData);
+                    if (in_array($employeeId, $existingEmployeeIds)) {
+                        // Employee exists -> Update
+                        $employeesModel->update($employeeId, ['employee_name' => $inputEmployee['employee_name']]);
                     }
-                }else{
-                    $newEmployee = [
+                } else {
+                    // Employee doesn't exist -> Create new
+                    $employeesModel->create([
                         'job_id' => $jobId,
                         'employee_name' => $inputEmployee['employee_name']
-                    ];
-                    $employeesModel->create($newEmployee);
+                    ]);
                 }
             }
         }
     
-        // Update the timesheet with the new jobs
+        // Fetch the updated timesheet data
         $timesheetData['jobs'] = $jobsModel->getByWeek($week_start_date);
-        // $timesheetModel->update( $timesheetData);  // Assuming update method exists
     
-        // Return the updated data as JSON
         echo json_encode($timesheetData);
     }
+    
     
     
     public function post() {

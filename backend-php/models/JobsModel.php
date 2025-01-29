@@ -45,7 +45,7 @@ class JobsModel  {
 
     public function getAll() {
         try {
-            $stmt = $this->db->query('SELECT * FROM jobs');
+            $stmt = $this->db->query('SELECT * FROM jobs WHERE deleted_at IS NULL');
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             // Handle query errors
@@ -56,7 +56,7 @@ class JobsModel  {
 
     public function getById($id) {
         try {
-            $stmt = $this->db->prepare('SELECT * FROM jobs WHERE job_id = :job_id');
+            $stmt = $this->db->prepare('SELECT * FROM jobs WHERE job_id = :job_id AND deleted_at IS NULL');
             $stmt->execute(['job_id' => $id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -68,7 +68,7 @@ class JobsModel  {
 
     public function getByWeek($week_start_date) {
         try {
-            $stmt = $this->db->prepare('SELECT * FROM jobs WHERE week_start_date = :week_start_date');
+            $stmt = $this->db->prepare('SELECT * FROM jobs WHERE week_start_date = :week_start_date AND deleted_at IS NULL');
             $stmt->execute(['week_start_date' => $week_start_date]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -80,7 +80,7 @@ class JobsModel  {
 
     public function getJobsByWeekStartDate($week_start_date) {
         try {
-            $stmt = $this->db->prepare('SELECT * FROM jobs WHERE week_start_date = :week_start_date');
+            $stmt = $this->db->prepare('SELECT * FROM jobs WHERE week_start_date = :week_start_date AND deleted_at IS NULL');
             $stmt->execute(['week_start_date' => $week_start_date]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -93,7 +93,7 @@ class JobsModel  {
     public function delete($id) {
         try {
             // Update the deleted_at timestamp to mark the record as deleted
-            $stmt = $this->db->prepare('UPDATE jobs SET deleted_at = NOW() WHERE id = :id');
+            $stmt = $this->db->prepare('UPDATE jobs SET deleted_at = NOW() WHERE job_id = :id');
             $stmt->execute([
                 'id' => $id,
             ]);

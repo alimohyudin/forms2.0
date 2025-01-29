@@ -16,7 +16,7 @@ class WeeklyTimesheetModel {
 
     public function getAll() {
         try {
-            $stmt = $this->db->query('SELECT * FROM weekly_timesheet');
+            $stmt = $this->db->query('SELECT * FROM weekly_timesheet WHERE deleted_at IS NULL');
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             // Handle query errors
@@ -27,7 +27,7 @@ class WeeklyTimesheetModel {
 
     public function getByWeek($week_start_date) {
         try {
-            $stmt = $this->db->prepare('SELECT * FROM weekly_timesheet WHERE week_start_date = :week_start_date');
+            $stmt = $this->db->prepare('SELECT * FROM weekly_timesheet WHERE week_start_date = :week_start_date AND deleted_at IS NULL');
             $stmt->execute([
                 'week_start_date' => $week_start_date,
             ]);
@@ -72,7 +72,7 @@ class WeeklyTimesheetModel {
                 }
             }
     
-            echo "Week, jobs, and employees created successfully.";
+            // echo "Week, jobs, and employees created successfully.";
         } catch (PDOException $e) {
             // Handle query errors
             echo "Error creating resource: " . $e->getMessage();

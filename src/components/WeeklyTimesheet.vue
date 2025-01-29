@@ -18,16 +18,16 @@
 
                 <div class="col-12 px-0">
                   <label for="startDateInput" class="form-label">Week Start Date: </label>
-                  <input type="text" name="email" class="form-control" v-model="timesheet.week_start_date">
+                  <input type="text" name="email" class="form-control" v-model="timesheet.week_start_date" disabled>
                 </div>
                 <div class="row px-0">
                   <div class="col-5">
                     <label for="startDateInput" class="form-label">Week End Date:&nbsp;</label>
-                    <input type="text" name="email" class="form-control" v-model="timesheet.week_end_date">
+                    <input type="text" name="email" class="form-control" v-model="timesheet.week_end_date" disabled>
                   </div>
                   <div class="col-6">
                     <label for="startDateInput" class="form-label">Foreman: </label>
-                    <input type="text" name="email" class="form-control" v-model="timesheet.foreman_name">
+                    <input type="text" name="email" class="form-control" v-model="timesheet.foreman_name" disabled>
                   </div>
                 </div>
 
@@ -49,45 +49,42 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <template v-for="(job, index) in timesheet.jobs" >
+                      <template v-for="(job, index) in timesheet.jobs">
                         <tr class="jobname-row" :key="job.job_id">
                           <td>
                             <span>{{ job.job_name }}</span>
                           </td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control saturday" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control sunday" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control " v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
+                          <td><input type="text" name="email" class="form-control "></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
                         </tr>
                         <tr v-for="(employee, jindex) in job.employees" :key="employee.employee_id">
                           <td>
                             <span>{{ employee.employee_name }}</span>
                           </td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control saturday" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control sunday" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
+                          <td v-for="(day, dindex) in daysOfWeek" :key="dindex">
+                            <input type="text"
+                              :class="'form-control ' + ((dindex == 3 || dindex == 4) ? 'saturday' : '')"
+                              v-model="employee.hours_worked[dindex]" min="0" max="24">
+                          </td>
                         </tr>
                         <tr class="empty-row">
                           <td>
                             <span></span>
                           </td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control saturday" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control sunday" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
-                          <td><input type="text" name="email" class="form-control" v-model="startDate"></td>
+                          <td><input type="text" name="email" class="form-control"></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
                         </tr>
                       </template>
                     </tbody>
@@ -100,12 +97,12 @@
               <div class="col-6">
                 <button>&lt; Previous</button>
                 <button>Next &gt;</button>
-                <router-link :to="'/weekly/edit/'+ timesheet.week_start_date" >
+                <router-link :to="'/weekly/edit/' + timesheet.week_start_date">
                   <button style="margin-left: 10px;">Edit</button>
                 </router-link>
               </div>
               <div class="col-6" style="text-align: right;">
-                <button>Save</button>
+                <button @click="saveTimesheet()">Save</button>
               </div>
             </div>
           </div>
@@ -129,24 +126,40 @@
     },
     data() {
       return {
+        daysOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
         timesheet: {},
       };
     },
     methods: {
-      getThisWeekTimesheet() {        
+      saveTimesheet() {
+        console.log(this.timesheet);
+      },
+      getThisWeekTimesheet() {
         let that = this;
         //calculate week start date
         let week_start_date = new Date();
         week_start_date.setDate(week_start_date.getDate() - week_start_date.getDay() + 1);
         //format to 2025-01-28
-        week_start_date = week_start_date.toISOString().split('T')[0];        
+        week_start_date = week_start_date.toISOString().split('T')[0];
         console.log(week_start_date);
 
         this.$local
-          .getRequest("/weeklytimesheet?week_start_date="+week_start_date)
+          .getRequest("/weeklytimesheet?week_start_date=" + week_start_date)
           .then(function (data) {
             console.log(data);
+
+            /* data.data.jobs = data.data.jobs.map(job => ({
+              ...job,
+              employees: job.employees.map(emp => ({
+                ...emp,
+                hours_worked: Array(8)
+              })),
+            }));
+            console.log(data.data.jobs); */
+            
+
             that.timesheet = data.data;
+
             return;
           })
           .catch(function (msg) {

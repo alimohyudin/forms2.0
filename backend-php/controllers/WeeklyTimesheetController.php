@@ -83,8 +83,14 @@ class WeeklyTimesheetController {
         
         // Check if timesheet data exists
         if (empty($timesheetData)) {
-            echo json_encode(['error' => 'Timesheet not found for the given week start date']);
-            return;
+            // echo json_encode(['error' => 'Timesheet not found for the given week start date']);
+            // return;
+            // If no timesheet found, create a new one
+            $timesheetModel = new WeeklyTimesheetModel();
+            $week_end_date = date('Y-m-d', strtotime($week_start_date . ' + 6 days'));
+            $foreman_name = "";
+            $timesheetModel->create(['week_start_date' => $week_start_date, 'week_end_date' => $week_end_date, 'foreman_name' => $foreman_name]);
+            $timesheetData = $timesheetModel->getByWeek($week_start_date);
         }
         
         // Fetch jobs related to the timesheet's week_start_date

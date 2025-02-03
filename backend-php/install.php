@@ -50,13 +50,21 @@ try {
     $sql = "
     CREATE TABLE IF NOT EXISTS hours_worked (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        week_start_date DATE NOT NULL,
         employee_id INT NOT NULL,
-        date DATE NOT NULL,
-        hours_worked DECIMAL(4, 2) NOT NULL,
+        mon DECIMAL(4,2) DEFAULT 0,
+        tue DECIMAL(4,2) DEFAULT 0,
+        wed DECIMAL(4,2) DEFAULT 0,
+        thu DECIMAL(4,2) DEFAULT 0,
+        fri DECIMAL(4,2) DEFAULT 0,
+        sat DECIMAL(4,2) DEFAULT 0,
+        sun DECIMAL(4,2) DEFAULT 0,
+        total DECIMAL(4,2) DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         deleted_at TIMESTAMP NULL,
-        FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+        UNIQUE (week_start_date, employee_id),
+        FOREIGN KEY (employee_id) REFERENCES employees(employee_id) 
             ON DELETE CASCADE ON UPDATE CASCADE
     )";
     $pdo->exec($sql);
@@ -78,4 +86,3 @@ try {
  */
 
 ?>
-

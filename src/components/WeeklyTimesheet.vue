@@ -63,14 +63,20 @@
                           <td></td>
                           <td></td>
                         </tr>
-                        <tr v-for="(employee, jindex) in job.employees" :key="employee.employee_id">
+                        <tr v-for="(employee, jindex) in job.employees" :key="employee.employee_id + '-' + jindex">
                           <td>
                             <span>{{ employee.employee_name }}</span>
                           </td>
-                          <td v-for="(day, dindex) in daysOfWeek" :key="dindex">
+                          <td v-for="(day, dindex) in daysOfWeek" :key="day + '-' + dindex">
                             <input type="text"
                               :class="'form-control ' + ((dindex == 3 || dindex == 4) ? 'saturday' : '')"
-                              v-model="employee.hours_worked[dindex]" min="0" max="24">
+                              v-model="employee.hours_worked[day]" min="0" max="24">
+                          </td>
+                          <td>
+                            <span>
+                              <input type="text" class="form-control" :value="calculateTotal(employee.hours_worked)"
+                                disabled>
+                            </span>
                           </td>
                         </tr>
                         <tr class="empty-row">
@@ -95,14 +101,17 @@
             </div>
             <div class="row" style="margin: 5px 0px;">
               <div class="col-6">
-                <button>&lt; Previous</button>
-                <button>Next &gt;</button>
-                <router-link :to="'/weekly/edit/' + timesheet.week_start_date">
+                <!-- previous week with previousCount -->
+                <button @click="getPreviousWeekTimesheet(previousCount + 1)">&lt; Previous</button>
+                <!-- next week only if previousCount is less than zero -->
+                <button v-if="previousCount > 0" @click="getPreviousWeekTimesheet(previousCount - 1)">Next &gt;</button>
+                
+                <router-link v-if="previousCount == 0 || true" :to="'/weekly/edit/' + timesheet.week_start_date">
                   <button style="margin-left: 10px;">Edit</button>
                 </router-link>
               </div>
-              <div class="col-6" style="text-align: right;">
-                <button @click="saveTimesheet()">Save</button>
+              <div v-if="previousCount == 0 || true" class="col-6" style="text-align: right;">
+                <button @click="save()">Save</button>
               </div>
             </div>
           </div>
@@ -126,19 +135,45 @@
     },
     data() {
       return {
-        daysOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        daysOfWeek: ["wed", "thu", "fri", "sat", "sun", "mon", "tue"],
         timesheet: {},
+        previousCount: 0
       };
     },
+    computed: {
+      
+    },
     methods: {
-      saveTimesheet() {
-        console.log(this.timesheet);
+      calculateTotal(hours) {
+        let total = 0;
+        for (let day in hours) {
+          total += parseFloat(hours[day]) || 0;
+        }
+        if(total === 0) return '';
+        return total.toFixed(2).replace(/\.00$/, '');
       },
-      getThisWeekTimesheet() {
+      save() {
+        console.log(this.timesheet);
         let that = this;
+        this.$local
+          .putRequest("/weeklytimesheet?hours_worked=true", this.timesheet)
+          .then(function (data) {
+            console.log(data);
+            that.$toaster.success("Timesheet saved successfully");
+            return;
+          })
+          .catch(function (msg) {
+            console.log(msg);
+            that.$toaster.error(msg);
+            return;
+          });
+      },
+      getPreviousWeekTimesheet(previousCount) {
+        let that = this;
+        this.previousCount = previousCount;
         //calculate week start date
         let week_start_date = new Date();
-        week_start_date.setDate(week_start_date.getDate() - week_start_date.getDay() + 1);
+        week_start_date.setDate(week_start_date.getDate() - week_start_date.getDay() + 1 - (previousCount * 7));
         //format to 2025-01-28
         week_start_date = week_start_date.toISOString().split('T')[0];
         console.log(week_start_date);
@@ -147,16 +182,25 @@
           .getRequest("/weeklytimesheet?week_start_date=" + week_start_date)
           .then(function (data) {
             console.log(data);
+            // round hours_worked to 2 decimal places
+            //emp.hours_worked is object with keys as days of week
+            data.data.jobs.forEach(job => {
+              job.employees.forEach(emp => {
+                for (let day in emp.hours_worked) {
+                  // console.log("day ", day, emp.hours_worked[day]);
 
-            /* data.data.jobs = data.data.jobs.map(job => ({
-              ...job,
-              employees: job.employees.map(emp => ({
-                ...emp,
-                hours_worked: Array(8)
-              })),
-            }));
-            console.log(data.data.jobs); */
-            
+                  if(emp.hours_worked[day] == "") {
+                    emp.hours_worked[day] = '';
+                    console.log("empty")
+                  }
+                  else if (emp.hours_worked[day] && parseFloat(emp.hours_worked[day]) >= 0) {
+                    // Convert to float and check if it's an integer
+                    let hours = parseFloat(emp.hours_worked[day]);
+                    emp.hours_worked[day] = Number.isInteger(hours) ? hours.toString() : hours.toFixed(2).replace(/\.00$/, '');
+                  }
+                }
+              });
+            });
 
             that.timesheet = data.data;
 
@@ -171,7 +215,7 @@
     created: function () {
       localStorage.removeItem('user_token');
       global.vm.$local.token = '';
-      this.getThisWeekTimesheet();
+      this.getPreviousWeekTimesheet(0);
     }
   };
 </script>

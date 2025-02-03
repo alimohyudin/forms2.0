@@ -81,6 +81,8 @@ class EmployeesModel {
                 'job_id' => $data['job_id'],
                 'employee_name' => $data['employee_name'],
             ]);
+            // return the id of the inserted row
+            return $this->db->lastInsertId();
         } catch (PDOException $e) {
             // Handle query errors
             echo "Error creating employee: " . $e->getMessage();

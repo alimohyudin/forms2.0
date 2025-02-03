@@ -15,97 +15,110 @@ class HoursWorkedModel {
         }
     }
 
-    // Create a new job record
-    public function create($data) {
+    public function getByWeekAndEmployee($week_start_date, $employee_id) {
         try {
-            $stmt = $this->db->prepare('INSERT INTO hours_worked (employee_id, date, hours_worked) VALUES (:employee_id, :date, :hours_worked)');
+            // error_log("SELECT * FROM hours_worked WHERE week_start_date = :week_start_date AND employee_id = :employee_id");
+            // error_log("week_start_date: $week_start_date, employee_id: $employee_id");
+            $stmt = $this->db->prepare('SELECT * FROM hours_worked WHERE week_start_date = :week_start_date AND employee_id = :employee_id');
             $stmt->execute([
-                'employee_id' => $data['employee_id'],
-                'date' => $data['date'],
-                'hours_worked' => $data['hours_worked'],
+                'week_start_date' => $week_start_date,
+                'employee_id' => $employee_id,
             ]);
-        } catch (PDOException $e) {
-            // Handle query errors
-            echo "Error creating job: " . $e->getMessage();
-        }
-    }
-
-    // Update an existing job record
-    public function update($id, $data) {
-        try {
-            $stmt = $this->db->prepare('UPDATE hours_worked SET employee_id = :employee_id, date = :date, hours_worked = :hours_worked, updated_at = NOW() WHERE id = :id');
-            $stmt->execute([
-                'id' => $id,
-                'employee_id' => $data['employee_id'],
-                'date' => $data['date'],
-                'hours_worked' => $data['hours_worked'],
-            ]);
-        } catch (PDOException $e) {
-            // Handle query errors
-            echo "Error updating job: " . $e->getMessage();
-        }
-    }
-
-    // Get all jobs
-    public function getAll() {
-        try {
-            $stmt = $this->db->query('SELECT * FROM hours_worked WHERE deleted_at IS NULL');
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            // Handle query errors
-            echo "Error fetching jobs: " . $e->getMessage();
-            return [];
-        }
-    }
-
-    // Get a specific job by its ID
-    public function getById($id) {
-        try {
-            $stmt = $this->db->prepare('SELECT * FROM hours_worked WHERE id = :id AND deleted_at IS NULL');
-            $stmt->execute(['id' => $id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            // Handle query errors
-            echo "Error fetching job: " . $e->getMessage();
+            // echo "Error fetching hours worked: " . $e->getMessage();
+            error_log("Error fetching hours worked: " . $e->getMessage());
+
             return null;
         }
     }
 
-    // Get jobs for a specific employee
-    public function getByEmployee($employee_id) {
+    public function getByWeekAndEmployeeIds($week_start_date, $employee_ids) {
         try {
-            $stmt = $this->db->prepare('SELECT * FROM hours_worked WHERE employee_id = :employee_id AND deleted_at IS NULL');
-            $stmt->execute(['employee_id' => $employee_id]);
+            // Generate named parameters for each employee_id
+            $placeholders = implode(', ', array_map(function($key) {
+                return ":employee_id_$key";
+            }, array_keys($employee_ids)));
+            
+            // Prepare the SQL statement with named parameters for employee_ids
+            $stmt = $this->db->prepare("SELECT * FROM hours_worked WHERE week_start_date = :week_start_date AND employee_id IN ($placeholders)");
+            
+            // Combine the parameters
+            $params = ['week_start_date' => $week_start_date];
+            foreach ($employee_ids as $key => $employee_id) {
+                $params["employee_id_$key"] = $employee_id;
+            }
+            
+            error_log("SELECT * FROM hours_worked WHERE week_start_date = :week_start_date AND employee_id IN ($placeholders)");
+            error_log(print_r($params, true));
+            
+            // Execute with the merged parameters
+            $stmt->execute($params);
+            
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            // Handle query errors
-            echo "Error fetching jobs: " . $e->getMessage();
+            error_log("Error fetching hours worked: " . $e->getMessage());
             return [];
         }
     }
+    
 
-    public function getByEmployeeIds($employeeIds) {
+    public function create($data) {
         try {
-            $in = str_repeat('?,', count($employeeIds) - 1) . '?';
-            $stmt = $this->db->prepare("SELECT * FROM hours_worked WHERE employee_id IN ($in) AND deleted_at IS NULL");
-            $stmt->execute($employeeIds);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $this->db->prepare('
+                INSERT INTO hours_worked (
+                    week_start_date, employee_id, mon, tue, wed, thu, fri, sat, sun
+                ) VALUES (
+                    :week_start_date, :employee_id, :mon, :tue, :wed, :thu, :fri, :sat, :sun
+                )');
+            $stmt->execute([
+                'week_start_date' => $data['week_start_date'],
+                'employee_id' => $data['employee_id'],
+                'mon' => $data['mon'],
+                'tue' => $data['tue'],
+                'wed' => $data['wed'],
+                'thu' => $data['thu'],
+                'fri' => $data['fri'],
+                'sat' => $data['sat'],
+                'sun' => $data['sun'],
+            ]);
         } catch (PDOException $e) {
-            // Handle query errors
-            echo "Error fetching jobs: " . $e->getMessage();
-            return [];
+            echo "Error creating hours worked: " . $e->getMessage();
         }
     }
 
-    // Soft delete a job by marking it as deleted
-    public function delete($id) {
+    public function update($data) {
         try {
-            // Update the deleted_at timestamp to mark the record as deleted
-            $stmt = $this->db->prepare('UPDATE hours_worked SET deleted_at = NOW() WHERE id = :id');
-            $stmt->execute(['id' => $id]);
+            $stmt = $this->db->prepare('
+                UPDATE hours_worked 
+                SET mon = :mon, tue = :tue, wed = :wed, thu = :thu, fri = :fri, sat = :sat, sun = :sun, updated_at = CURRENT_TIMESTAMP
+                WHERE week_start_date = :week_start_date AND employee_id = :employee_id
+            ');
+            $stmt->execute([
+                'week_start_date' => $data['week_start_date'],
+                'employee_id' => $data['employee_id'],
+                'mon' => $data['mon'],
+                'tue' => $data['tue'],
+                'wed' => $data['wed'],
+                'thu' => $data['thu'],
+                'fri' => $data['fri'],
+                'sat' => $data['sat'],
+                'sun' => $data['sun'],
+            ]);
         } catch (PDOException $e) {
-            // Handle query errors
-            echo "Error deleting job: " . $e->getMessage();
+            echo "Error updating hours worked: " . $e->getMessage();
+        }
+    }
+
+    public function delete($week_start_date, $employee_id) {
+        try {
+            $stmt = $this->db->prepare('DELETE FROM hours_worked WHERE week_start_date = :week_start_date AND employee_id = :employee_id');
+            $stmt->execute([
+                'week_start_date' => $week_start_date,
+                'employee_id' => $employee_id,
+            ]);
+        } catch (PDOException $e) {
+            echo "Error deleting hours worked: " . $e->getMessage();
         }
     }
 }

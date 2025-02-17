@@ -82,56 +82,64 @@
 </template>
 
 <script>
-//import CommonHeader from './CommonHeader.vue'
-import CommonFooter from './CommonFooter.vue'
+  //import CommonHeader from './CommonHeader.vue'
+  import CommonFooter from './CommonFooter.vue'
 
-export default {
-  name: "landing-page",
-  components: {
-    CommonFooter
-  },
-  data() {
-    return {
-      email: "",
-    };
-  },
-  methods: {
-    login() {
-      let formData = $("#login_form").serialize();
-      //console.log(formData);
-      let that = this;
-      this.$local
-        .postRequest("/user/login", formData)
-        .then(function (data) {
-          //console.log(data);
-          //that.users = data.users;
-          if (data.accountType === 'admin') {
-            that.$router.push({ name: "admin-dashboard-page" });
-          } else {
-            that.$router.push({ name: "user-dashboard-page" });
-          }
-
-          return;
-        })
-        .catch(function (msg) {
-          console.log(msg);
-          if (msg && msg.toString().includes('Could not find your account'))
-            that.$toaster.error("Email/password is wrong.");
-          else if (msg && msg.toString().includes('Verify your email first')) {
-            that.$toaster.error("Verify Email first.");
-            that.$router.push({ name: "verify-email-page", params: { email: that.email } });
-          }
-          else
-            that.$toaster.error(msg);
-          return;
-        });
+  export default {
+    name: "landing-page",
+    components: {
+      CommonFooter
     },
-  },
-  created: function () {
-    localStorage.removeItem('user_token');
-    global.vm.$local.token = '';
-  }
-};
+    data() {
+      return {
+        email: "",
+      };
+    },
+    methods: {
+      login() {
+        let formData = $("#login_form").serialize();
+        //console.log(formData);
+        let that = this;
+
+
+        that.$local
+          .postRequest("/login", formData)
+          .then(function (data) {
+            that.$toaster.success("Login successful.");
+
+            that.$local.getRequest("/tickets")
+              .then(function (data) {
+                console.log("tickets: ")
+                console.log(data);
+                return;
+              })
+              .catch(function (msg) {
+                console.log(msg);
+                that.$toaster.error(msg);
+                return;
+              });
+
+            return;
+          })
+          .catch(function (msg) {
+            console.log(msg);
+            if (msg && msg.toString().includes('Could not find your account'))
+              that.$toaster.error("Email/password is wrong.");
+            else if (msg && msg.toString().includes('Verify your email first')) {
+              that.$toaster.error("Verify Email first.");
+              that.$router.push({ name: "verify-email-page", params: { email: that.email } });
+            }
+            else
+              that.$toaster.error(msg);
+            return;
+          });
+      },
+    },
+    created: function () {
+      localStorage.removeItem('user_token');
+      global.vm.$local.token = '';
+    }
+  };
 </script>
 
 <style></style>

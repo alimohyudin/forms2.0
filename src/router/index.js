@@ -5,8 +5,14 @@ Vue.use(Router)
 
 export default new Router({
     //mode: 'history',
-    routes: [{
+    routes: [
+        {
             path: '/',
+            name: 'landing-page',
+            component: require('../components/LandingPage').default,
+        },
+        {
+            path: '/foreman-report',
             name: 'Another-landing-page',
             component: require('../components/AnotherLandingPage').default,
         },

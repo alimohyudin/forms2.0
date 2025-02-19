@@ -27,11 +27,19 @@ Vue.prototype.$local = {
     token: localStorage.getItem('user_token') || '',
     isExchange: localStorage.getItem('isExchange') || '',
     getRequest: function (subUrl) {
-        //console.log('hello get request' + this.server)
-        return axios.get(this.server + subUrl);
+        console.log('hello get request: ' + this.server);
+    
+        let config = {
+            headers: { 'Authorization': 'Bearer ' + this.token }  // "Bearer" should be capitalized
+        };
+    
+        console.log(config);
+    
+        return axios.get(this.server + subUrl, config); // Pass `config` as the second argument
     },
     postRequest: function (subUrl, formData, that) {
-        //console.log('hello post request')
+        console.log('hello post request')
+        console.log(formData)
         let config = {
             headers: { 'Authorization': 'bearer ' + this.token },
         }
@@ -41,18 +49,16 @@ Vue.prototype.$local = {
             formData,
             config,
         ).then(function (data) {
-            //console.log('in axios then')
-            //console.log(data)
+            // console.log('in axios then')
+            // console.log(data)
             data = data.data;
 
-            if (data.success) {
+            if (data.message == "Login successful") {
                 return new Promise(function (resolve, reject) {
                     if (subUrl.indexOf('login') >= 0 || subUrl.indexOf('verify-email') >= 0) {
-                        global.vm.$local.token = data.data.token;
-                        localStorage.setItem('user_token', data.data.token);
-                        global.vm.$local.userData = data.data;
-                        global.vm.$local.isExchange = '' + data.data.isExchangeAccountSettings;
-                        localStorage.setItem('isExchange', (data.data.isExchangeAccountSettings));
+                        global.vm.$local.token = data.token;
+                        localStorage.setItem('user_token', data.token);
+                        global.vm.$local.userData = data
 
                         //global.vm.$socket = SocketIO('http://94.176.238.154:7861/', { query: `token=${data.data.token}` });
 
@@ -64,7 +70,7 @@ Vue.prototype.$local = {
                         data.data.v_extras = data.extras;
                     }
 
-                    resolve(data.data);
+                    resolve(data);
                 });
             } else {
                 return new Promise(function ({ }, reject) {

@@ -340,7 +340,7 @@
 
 <script>
     //import CommonHeader from './CommonHeader.vue'
-    import CommonFooter from './CommonFooter.vue'
+    import CommonFooter from '../CommonFooter.vue'
 
     export default {
         name: "landing-page",

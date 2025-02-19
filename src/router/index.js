@@ -12,19 +12,24 @@ export default new Router({
             component: require('../components/LandingPage').default,
         },
         {
+            path: '/',
+            name: 'dashboard-page',
+            component: require('../components/users/DashboardPage').default,
+        },
+        {
             path: '/foreman-report',
-            name: 'Another-landing-page',
-            component: require('../components/AnotherLandingPage').default,
+            name: 'foreman-report-page',
+            component: require('../components/users/ForemanReport').default,
         },
         {
-            path: '/weekly',
-            name: 'landing-page',
-            component: require('../components/WeeklyTimesheet').default,
+            path: '/user/weekly',
+            name: 'weekly-timesheet-page',
+            component: require('../components/users/WeeklyTimesheet').default,
         },
         {
-            path: '/weekly/edit/:week_start_date',
+            path: '/user/weekly/edit/:week_start_date',
             name: 'edit-weekly-page',
-            component: require('../components/EditWeeklyTimesheet').default,
+            component: require('../components/users/EditWeeklyTimesheet').default,
             props: true
         },
         /* ,

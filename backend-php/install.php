@@ -69,6 +69,18 @@ try {
     )";
     $pdo->exec($sql);
 
+    // Create Users table
+    $sql = "
+    CREATE TABLE IF NOT EXISTS users (
+        user_id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL
+    )";
+    $pdo->exec($sql);
+
     echo "Tables created successfully.";
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();

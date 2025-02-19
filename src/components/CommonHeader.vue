@@ -5,7 +5,7 @@
     <div class="d-flex align-items-center justify-content-between">
       <a href="index.html" class="logo d-flex align-items-center">
         <img src="../assets/img/logo.png" alt="">
-        <span class="d-none d-lg-block">Crypto Automation</span>
+        <span class="d-none d-lg-block">Forms Automation</span>
       </a>
       <i class="bi bi-list toggle-sidebar-btn" @click="changeSidebarClass"></i>
     </div><!-- End Logo -->
@@ -122,7 +122,7 @@
             </li>
 
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="/">
+              <a class="dropdown-item d-flex align-items-center" href="#" @click="logout">
                 <i class="bi bi-box-arrow-right"></i>
                 <span>Logout</span>
               </a>
@@ -165,6 +165,10 @@ export default {
         this.$router.push("/");
       }
     },
+    logout() {
+      localStorage.removeItem("user_token");
+      this.$router.push("/");
+    }
   },
   created() { },
   mounted() {
@@ -178,20 +182,20 @@ export default {
     this.hideBackBtn = false;
     // console.log('User Data Exists:')
     // console.log(this.previousPath)
-    if (this.$local.userData) {
-      // console.log(this.$local.userData);
-      this.fullname = this.$local.userData.fullName;
-      if (this.$local.userData.accountType === "admin" && prev === "/cashier") {
-        this.previousPath = "/admin/dashboard-page";
-      } else if (
-        this.$local.userData.accountType === "cashier" &&
-        prev === "/cashier"
-      ) {
-        this.hideBackBtn = true;
-      }
-    } else {
-      this.$router.push("/");
-    }
+    // if (this.$local.userData) {
+    //   // console.log(this.$local.userData);
+    //   this.fullname = this.$local.userData.fullName;
+    //   if (this.$local.userData.accountType === "admin" && prev === "/cashier") {
+    //     this.previousPath = "/admin/dashboard-page";
+    //   } else if (
+    //     this.$local.userData.accountType === "cashier" &&
+    //     prev === "/cashier"
+    //   ) {
+    //     this.hideBackBtn = true;
+    //   }
+    // } else {
+    //   this.$router.push("/");
+    // }
 
     
 

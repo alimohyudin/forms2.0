@@ -22,40 +22,41 @@
 
                   <div class="pt-4 pb-2">
                     <h5 class="card-title text-center pb-0 fs-4">Login to Your Account</h5>
-                    <p class="text-center small">Enter your email & password to login</p>
+                    <p class="text-center small">Enter your username & password to login</p>
                   </div>
 
                   <form class="row g-3 needs-validation" novalidate ref="form" id="login_form"
                     v-on:submit.prevent="login">
 
                     <div class="col-12">
-                      <label for="emailInput" class="form-label">Email</label>
                       <div class="input-group has-validation">
-                        <span class="input-group-text" id="inputGroupPrepend">@</span>
-                        <input type="email" name="email" class="form-control" id="emailInput" placeholder=""
-                          v-model="email" required>
-                        <div class="invalid-feedback">Please enter your email.</div>
+                        <span class="input-group-text" id="inputGroupPrepend">Username: </span>
+                        <input type="username" name="username" class="form-control" id="usernameInput" placeholder=""
+                          v-model="username" required>
+                        <div class="invalid-feedback">Please enter your username.</div>
                       </div>
                     </div>
 
                     <div class="col-12">
-                      <label for="passwordInput" class="form-label">Password</label>
-                      <input type="password" name="password" class="form-control" id="passwordInput" placeholder=""
-                        required>
-                      <div class="invalid-feedback">Please enter your password!</div>
+                      <div class="input-group has-validation">
+                        <span class="input-group-text" id="inputGroupPrepend">Password: </span>
+                        <input type="password" name="password" class="form-control" id="passwordInput" placeholder=""
+                          v-model="password" required>
+                        <div class="invalid-feedback">Please enter your password.</div>
+                      </div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-12 d-none">
                       <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe">
                         <label class="form-check-label" for="rememberMe">Remember me</label>
                       </div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-12 mt-5">
                       <button class="btn btn-primary w-100" type="submit" id="submitBtn">Login</button>
                     </div>
-                    <div class="col-12">
+                    <div class="col-12 d-none">
                       <p class="small mb-0">Don't have account? <router-link to="/register">Create an
                           account</router-link></p>
                       <!-- <router-link to="/reset-password-page">
@@ -92,33 +93,21 @@
     },
     data() {
       return {
-        email: "",
+        username: "",
+        password: "",
       };
     },
     methods: {
       login() {
-        let formData = $("#login_form").serialize();
-        //console.log(formData);
         let that = this;
 
 
         that.$local
-          .postRequest("/login", formData)
+          .postRequest("/login", {username: this.username, password: this.password})
           .then(function (data) {
             that.$toaster.success("Login successful.");
-
-            that.$local.getRequest("/tickets")
-              .then(function (data) {
-                console.log("tickets: ")
-                console.log(data);
-                return;
-              })
-              .catch(function (msg) {
-                console.log(msg);
-                that.$toaster.error(msg);
-                return;
-              });
-
+            console.log(data);
+            that.$router.push({ name: "dashboard-page" });
             return;
           })
           .catch(function (msg) {
@@ -136,8 +125,12 @@
       },
     },
     created: function () {
-      localStorage.removeItem('user_token');
-      global.vm.$local.token = '';
+      // localStorage.setItem('user_token', data.token);
+      let old_token = localStorage.getItem('user_token');
+      console.log("oldToken: ", old_token);
+      if (old_token) {
+        this.$router.push({ name: "dashboard-page" });
+      }
     }
   };
 </script>

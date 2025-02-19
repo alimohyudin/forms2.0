@@ -102,11 +102,11 @@
             <div class="row" style="margin: 5px 0px;">
               <div class="col-6">
                 <!-- previous week with previousCount -->
-                <button @click="getPreviousWeekTimesheet(previousCount + 1)">&lt; Previous</button>
+                <button @click="getPreviousWeekTimesheet(previousCount + 1)">&lt; Previous Week</button>
                 <!-- next week only if previousCount is less than zero -->
-                <button v-if="previousCount > 0" @click="getPreviousWeekTimesheet(previousCount - 1)">Next &gt;</button>
+                <button v-if="previousCount > 0" @click="getPreviousWeekTimesheet(previousCount - 1)">Next Week &gt;</button>
                 
-                <router-link v-if="previousCount == 0 || true" :to="'/weekly/edit/' + timesheet.week_start_date">
+                <router-link v-if="previousCount == 0 || true" :to="'/user/weekly/edit/' + timesheet.week_start_date">
                   <button style="margin-left: 10px;">Edit</button>
                 </router-link>
               </div>
@@ -126,7 +126,7 @@
 
 <script>
   //import CommonHeader from './CommonHeader.vue'
-  import CommonFooter from './CommonFooter.vue'
+  import CommonFooter from '../CommonFooter.vue'
 
   export default {
     name: "landing-page",
@@ -213,8 +213,8 @@
       },
     },
     created: function () {
-      localStorage.removeItem('user_token');
-      global.vm.$local.token = '';
+      // localStorage.removeItem('user_token');
+      // global.vm.$local.token = '';
       this.getPreviousWeekTimesheet(0);
     }
   };

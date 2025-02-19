@@ -68,7 +68,7 @@
             </div>
             <div class="row" style="margin: 5px 0px;">
               <div class="col-6">
-                <router-link to="/weekly/">
+                <router-link to="/user/weekly/">
                   <button>Weekly Timesheet</button>
                 </router-link>
               </div>
@@ -88,7 +88,7 @@
 
 <script>
   //import CommonHeader from './CommonHeader.vue'
-  import CommonFooter from './CommonFooter.vue'
+  import CommonFooter from '../CommonFooter.vue'
 
   export default {
     name: "landing-page",
@@ -163,8 +163,6 @@
       let that = this;
       // console.log('created');
       // console.log("week_start_date: ", this.week_start_date);
-      localStorage.removeItem('user_token');
-      global.vm.$local.token = '';
       //get request to http://localhost/forms2.0/backend-php/api/weeklytimesheet
       this.$local.getRequest('/weeklytimesheet?week_start_date=' + this.week_start_date).then(function (data) {
         console.log("timesheetData", data.data);

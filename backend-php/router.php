@@ -13,7 +13,32 @@ class Router
         $uri = str_replace(BASE_DIRECTORY, '', $uri);
         error_log('URI: ' . $uri);
         switch ($uri) {
+            case '/api/login':
+                require 'controllers/UsersController.php';
+                $controller = new UsersController();
+                if ($method == 'POST') {
+                    $controller->login();
+                }
+                break;
+            case '/api/register':
+                require 'controllers/UsersController.php';
+                $controller = new UsersController();
+                if ($method == 'POST') {
+                    $controller->register();
+                }
+                break;
             case '/api/weeklytimesheet':
+                // verify token:
+                require 'controllers/UsersController.php';
+                $userController = new UsersController();
+                $isVerified = $userController->verifyToken();
+                if (!$isVerified) {
+                    http_response_code(401);
+                    echo json_encode(['error' => 'Unauthorized']);
+                    exit(0);
+                }
+
+
                 require 'controllers/WeeklyTimesheetController.php';
                 $controller = new WeeklyTimesheetController();
                 if ($method == 'GET') {

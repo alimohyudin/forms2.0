@@ -18,8 +18,15 @@
             <li clas="nav-item">
                 <router-link :to="'/user/weekly' + (userId ? '/' + userId : '')" class="nav-link"
                     @click.native="closeSidebar">
-                    <i class="bi bi-pie-chart"></i>
+                    <i class="bi bi-table"></i>
                     <span>Weekly Timesheets</span>
+                </router-link>
+            </li>
+            <li clas="nav-item">
+                <router-link :to="'/user/foreman-report' + (userId ? '/' + userId : '')" class="nav-link"
+                    @click.native="closeSidebar">                    
+                    <i class="bi bi-graph-up"></i>
+                    <span>Foreman Report</span>
                 </router-link>
             </li>
             <!-- <li clas="nav-item">

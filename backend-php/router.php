@@ -27,6 +27,22 @@ class Router
                     $controller->register();
                 }
                 break;
+            case '/api/dashboard':
+                // verify token:
+                require 'controllers/UsersController.php';
+                $userController = new UsersController();
+                $isVerified = $userController->verifyToken();
+                if (!$isVerified) {
+                    http_response_code(401);
+                    echo json_encode(['error' => 'Unauthorized']);
+                    exit(0);
+                }
+                require 'controllers/DashboardController.php';
+                $controller = new DashboardController();
+                if ($method == 'GET') {
+                    $controller->get();
+                }
+                break;
             case '/api/weeklytimesheet':
                 // verify token:
                 require 'controllers/UsersController.php';

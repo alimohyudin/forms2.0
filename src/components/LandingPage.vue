@@ -112,14 +112,7 @@
           })
           .catch(function (msg) {
             console.log(msg);
-            if (msg && msg.toString().includes('Could not find your account'))
-              that.$toaster.error("Email/password is wrong.");
-            else if (msg && msg.toString().includes('Verify your email first')) {
-              that.$toaster.error("Verify Email first.");
-              that.$router.push({ name: "verify-email-page", params: { email: that.email } });
-            }
-            else
-              that.$toaster.error(msg);
+            that.$toaster.error(msg);
             return;
           });
       },

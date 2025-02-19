@@ -17,7 +17,7 @@ export default new Router({
             component: require('../components/users/DashboardPage').default,
         },
         {
-            path: '/foreman-report',
+            path: '/user/foreman-report',
             name: 'foreman-report-page',
             component: require('../components/users/ForemanReport').default,
         },

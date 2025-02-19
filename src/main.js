@@ -14,7 +14,7 @@ import 'v-toaster/dist/v-toaster.css'
 
 
 
-Vue.prototype.$socket = "";
+// Vue.prototype.$socket = "";
 
 
 Vue.prototype.$local = {
@@ -78,7 +78,7 @@ Vue.prototype.$local = {
                         global.vm.$local.token = '';
                         localStorage.removeItem('user_token');
                     }
-                    reject(data.message);
+                    reject(data);
                 });
             }
         }).catch(function (err) {
@@ -86,10 +86,6 @@ Vue.prototype.$local = {
                 //let err = data.message;
                 console.log("in catch promise")
                 console.log('error', err)
-                if (err.toString().includes('code 429')){
-                    that.$toaster.error("Too Many Requests. Try again later.")
-                    reject('');                    
-                }else
                 reject(err);
             });
         });

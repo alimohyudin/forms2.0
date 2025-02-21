@@ -41,7 +41,7 @@ Vue.prototype.$local = {
         console.log('hello post request')
         console.log(formData)
         let config = {
-            headers: { 'Authorization': 'bearer ' + this.token },
+            headers: { 'Authorization': 'Bearer ' + this.token },
         }
 
         return axios.post(
@@ -58,7 +58,7 @@ Vue.prototype.$local = {
                     if (subUrl.indexOf('login') >= 0 || subUrl.indexOf('verify-email') >= 0) {
                         global.vm.$local.token = data.token;
                         localStorage.setItem('user_token', data.token);
-                        global.vm.$local.userData = data
+                        localStorage.setItem('user_name', data.user.username)
 
                         //global.vm.$socket = SocketIO('http://94.176.238.154:7861/', { query: `token=${data.data.token}` });
 
@@ -93,7 +93,7 @@ Vue.prototype.$local = {
     putRequest: function (subUrl, formData, that) {
         //console.log('hello post request')
         let config = {
-            headers: { 'Authorization': 'bearer ' + this.token },
+            headers: { 'Authorization': 'Bearer ' + this.token },
         }
 
         return axios.put(

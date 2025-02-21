@@ -87,14 +87,17 @@ class UsersController
     {
         //get token from header
         $headers = getallheaders();
-        // print(json_encode($headers));
+        error_log(json_encode($headers));
         if (!isset($headers["Authorization"])) {
             // http_response_code(401);
             // echo json_encode(['error' => 'Unauthorized']);
+            error_log("Authorization header doesn't exist");
             return false;
         }
         $token = $headers["Authorization"];
+        error_log("Token: ".$token);
         $token = str_replace("Bearer ", "", $token);
+        $token = str_replace("bearer ", "", $token);
         $token = trim($token);
         $token = str_replace('"', "", $token);
 
@@ -102,9 +105,12 @@ class UsersController
 
         try {
             JWT::decode($token, new Key($key, 'HS256'));
+            error_log("Token verified");
             return true;
             
         } catch (Exception $e) {
+            error_log("Token verification failed");
+            error_log($e->getMessage());
             return false;
         }
     }

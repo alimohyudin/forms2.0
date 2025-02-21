@@ -17,8 +17,8 @@ class EmployeesModel {
 
     public function getAll() {
         try {
-            $stmt = $this->db->query('SELECT * FROM employees');
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $this->db->query('SELECT DISTINCT employee_name FROM employees');
+            return $stmt->fetchAll(PDO::FETCH_COLUMN);
         } catch (PDOException $e) {
             // Handle query errors
             echo "Error fetching employees: " . $e->getMessage();

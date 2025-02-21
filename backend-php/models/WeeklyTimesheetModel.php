@@ -63,7 +63,7 @@ class WeeklyTimesheetModel {
             // Insert 4 default employees for each job
             foreach ($jobIds as $jobId) {
                 for ($i = 1; $i <= 4; $i++) {
-                    $employeeName = "Employee $i for Job $jobId"; // Customize employee name
+                    $employeeName = "Employee $i"; // Customize employee name
                     $stmt = $this->db->prepare('INSERT INTO employees (job_id, employee_name) VALUES (:job_id, :employee_name)');
                     $stmt->execute([
                         'job_id' => $jobId,

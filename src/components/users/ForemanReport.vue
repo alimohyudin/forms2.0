@@ -328,6 +328,16 @@
                             </form>
 
                         </div>
+                        <div class="row" style="margin: 5px 0px;">
+                          <div class="col-6">
+                            <router-link to="/">
+                              <button style="margin-left: 10px;">Dashboard</button>
+                            </router-link>
+                          </div>
+                          <div v-if="previousCount == 0 || true" class="col-6" style="text-align: right;">
+                            <button @click="save()">Save</button>
+                          </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -182,9 +182,10 @@ export default {
     this.hideBackBtn = false;
     // console.log('User Data Exists:')
     // console.log(this.previousPath)
-    // if (this.$local.userData) {
-    //   // console.log(this.$local.userData);
-    //   this.fullname = this.$local.userData.fullName;
+    this.fullname = localStorage.getItem('user_name') || "";
+    this.fullname = this.fullname.charAt(0).toUpperCase() + this.fullname.slice(1);
+
+    
     //   if (this.$local.userData.accountType === "admin" && prev === "/cashier") {
     //     this.previousPath = "/admin/dashboard-page";
     //   } else if (

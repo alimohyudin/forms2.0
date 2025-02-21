@@ -109,6 +109,9 @@
                 <router-link v-if="previousCount == 0 || true" :to="'/user/weekly/edit/' + timesheet.week_start_date">
                   <button style="margin-left: 10px;">Edit</button>
                 </router-link>
+                <router-link to="/">
+                  <button style="margin-left: 10px;">Dashboard</button>
+                </router-link>
               </div>
               <div v-if="previousCount == 0 || true" class="col-6" style="text-align: right;">
                 <button @click="save()">Save</button>

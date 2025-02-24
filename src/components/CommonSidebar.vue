@@ -6,7 +6,7 @@
 
             <li class="nav-item">
                 <!-- <a class="nav-link " href="index.html"> -->
-                <router-link class="nav-link" :to="'/user/dashboard' + (userId ? '/' + userId : '')"
+                <router-link class="nav-link" :to="'/'"
                     @click.native="closeSidebar">
                     <i class="bi bi-grid"></i>
                     <span>Dashboard</span>
@@ -16,21 +16,21 @@
 
             
             <li clas="nav-item">
-                <router-link :to="'/user/weekly' + (userId ? '/' + userId : '')" class="nav-link"
+                <router-link :to="'/user/list-weekly'" class="nav-link"
                     @click.native="closeSidebar">
                     <i class="bi bi-table"></i>
                     <span>Weekly Timesheets</span>
                 </router-link>
             </li>
             <li clas="nav-item">
-                <router-link :to="'/user/foreman-report' + (userId ? '/' + userId : '')" class="nav-link"
+                <router-link :to="'/user/foreman-report'" class="nav-link"
                     @click.native="closeSidebar">                    
                     <i class="bi bi-graph-up"></i>
                     <span>Foreman Report</span>
                 </router-link>
             </li>
             <!-- <li clas="nav-item">
-                <router-link :to="'/user/trades-graph' + (userId ? '/' + userId : '')" class="nav-link"
+                <router-link :to="'/user/trades-graph'" class="nav-link"
                     @click.native="closeSidebar">
                     <i class="bi bi-graph-up"></i>
                     <span>Graph Stats</span>

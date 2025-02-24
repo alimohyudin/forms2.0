@@ -32,7 +32,11 @@ class JobsModel  {
 
     public function update($id, $data) {
         try {
-            $stmt = $this->db->prepare('UPDATE jobs SET job_name = :job_name WHERE job_id = :job_id');
+            $stmt = $this->db->prepare('UPDATE jobs SET job_name = :job_name WHERE job_id = :job_id AND deleted_at IS NULL');
+            $stmt->execute([
+                'job_id' => $id,
+                'job_name' => $data['job_name'],
+            ]);
             $stmt->execute([
                 'job_id' => $id,
                 'job_name' => $data['job_name'],
@@ -47,6 +51,17 @@ class JobsModel  {
         try {
             $stmt = $this->db->query('SELECT * FROM jobs WHERE deleted_at IS NULL');
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // Handle query errors
+            echo "Error fetching jobs: " . $e->getMessage();
+            return [];
+        }
+    }
+
+    public function countJobs(){
+        try {
+            $stmt = $this->db->query('SELECT COUNT(DISTINCT job_name) FROM jobs WHERE deleted_at IS NULL');
+            return $stmt->fetchColumn();
         } catch (PDOException $e) {
             // Handle query errors
             echo "Error fetching jobs: " . $e->getMessage();

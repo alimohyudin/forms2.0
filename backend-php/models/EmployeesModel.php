@@ -17,8 +17,24 @@ class EmployeesModel {
 
     public function getAll() {
         try {
-            $stmt = $this->db->query('SELECT DISTINCT employee_name FROM employees');
-            return $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $stmt = $this->db->query('SELECT * FROM employees WHERE deleted_at IS NULL');
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // Handle query errors
+            echo "Error fetching employees: " . $e->getMessage();
+            return [];
+        }
+    }
+
+    public function countEmployees($jobIds = null) {
+        try {
+            $stmt = $this->db->query('SELECT COUNT(DISTINCT employee_name) FROM employees WHERE deleted_at IS NULL');
+            if($jobIds) {
+                $in = str_repeat('?,', count($jobIds) - 1) . '?';
+                $stmt = $this->db->prepare("SELECT COUNT(DISTINCT employee_name) FROM employees WHERE job_id IN ($in) AND deleted_at IS NULL");
+                $stmt->execute($jobIds);
+            }
+            return $stmt->fetchColumn();
         } catch (PDOException $e) {
             // Handle query errors
             echo "Error fetching employees: " . $e->getMessage();

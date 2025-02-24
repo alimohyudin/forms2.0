@@ -27,6 +27,11 @@ export default new Router({
             component: require('../components/users/WeeklyTimesheet').default,
         },
         {
+            path: '/user/list-weekly',
+            name: 'list-weekly-timesheet-page',
+            component: require('../components/users/ListWeeklyTimesheets').default,
+        },
+        {
             path: '/user/weekly/edit/:week_start_date',
             name: 'edit-weekly-page',
             component: require('../components/users/EditWeeklyTimesheet').default,

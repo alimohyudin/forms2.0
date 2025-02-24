@@ -14,8 +14,8 @@ class DashboardController
         $totalUsers = count($users);
 
         $employeesModel = new EmployeesModel();
-        $employees = $employeesModel->getAll();
-        $totalEmployees = count($employees);
+        $totalEmployees = $employeesModel->countEmployees();
+        // $totalEmployees = count($employees);
 
         $weeklyTimesheetModel = new WeeklyTimesheetModel();
         $weeklyTimesheets = $weeklyTimesheetModel->getAll();

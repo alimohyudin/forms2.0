@@ -121,5 +121,15 @@ class HoursWorkedModel {
             echo "Error deleting hours worked: " . $e->getMessage();
         }
     }
+
+    public function getAll() {
+        try {
+            $stmt = $this->db->query('SELECT * FROM hours_worked');
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Error fetching hours worked: " . $e->getMessage();
+            return [];
+        }
+    }
 }
 ?>

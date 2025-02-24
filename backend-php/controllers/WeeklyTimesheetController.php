@@ -27,6 +27,11 @@ class WeeklyTimesheetController
         // Prepare final response data
         $response = [];
 
+        //sort timesheets based on week_start_date
+        usort($timesheetData, function ($a, $b) {
+            return strtotime($b['week_start_date']) - strtotime($a['week_start_date']);
+        });
+
         // Loop through weekly timesheets
         foreach ($timesheetData as $timesheet) {
             $weekStartDate = $timesheet['week_start_date'];
@@ -34,36 +39,41 @@ class WeeklyTimesheetController
 
             // Filter jobs based on timesheet week range
             $filteredJobs = array_filter($jobsData, function ($job) use ($weekStartDate, $weekEndDate) {
-                return $job['week_start_date'] >= $weekStartDate;
+                return $job['week_start_date'] == $weekStartDate;
             });
 
-            // Get employee data based on filtered job IDs
+            // // Get employee data based on filtered job IDs
             $jobIds = array_column($filteredJobs, 'job_id');
-            $filteredEmployees = array_filter($employeesData, function ($employee) use ($jobIds) {
-                return in_array($employee['job_id'], $jobIds);
-            });
+            // error_log(json_encode($employeesData));
+            // error_log(json_encode($jobIds));
+            // $filteredEmployees = array_filter($employeesData, function ($employee) use ($jobIds) {
+            //     return in_array($employee['job_id'], $jobIds);
+            // });
+            // // error_log(json_decode($filteredEmployees));
 
-            // Group employees by job_id
-            $employeesByJob = [];
-            foreach ($filteredEmployees as $employee) {
-                $employeeId = $employee['employee_id'];
-                $employeeHoursWorked = array_filter($hourWorkedData, function ($hoursWorked) use ($employeeId) {
-                    return $hoursWorked['employee_id'] == $employeeId;
-                });
-                $employee['hours_worked'] = array_values($employeeHoursWorked);
-                $employeesByJob[$employee['job_id']][] = $employee;
-            }
+            // // Group employees by job_id
+            // $employeesByJob = [];
+            // foreach ($filteredEmployees as $employee) {
+            //     $employeeId = $employee['employee_id'];
+            //     $employeeHoursWorked = array_filter($hourWorkedData, function ($hoursWorked) use ($employeeId) {
+            //         return $hoursWorked['employee_id'] == $employeeId;
+            //     });
+            //     $employee['hours_worked'] = array_values($employeeHoursWorked);
+            //     $employeesByJob[$employee['job_id']][] = $employee;
+            // }
 
-            // Add employees to their respective jobs
-            foreach ($filteredJobs as &$job) {
-                $jobId = $job['job_id'];
-                $job['employees'] = isset($employeesByJob[$jobId]) ? $employeesByJob[$jobId] : [];
-            }
+            // // Add employees to their respective jobs
+            // foreach ($filteredJobs as &$job) {
+            //     $jobId = $job['job_id'];
+            //     $job['employees'] = isset($employeesByJob[$jobId]) ? $employeesByJob[$jobId] : [];
+            // }
 
             // Add timesheet, jobs, and employee data to response
             $response[] = [
                 'timesheet' => $timesheet,
-                'jobs' => array_values($filteredJobs)
+                'jobs' => array_values($filteredJobs),
+                'employees' => $employeesModel->countEmployees($jobIds)
+                // 'employees' => array_values($filteredEmployees),
             ];
         }
 

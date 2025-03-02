@@ -1,6 +1,5 @@
 <?php
 require_once('config.php');
-// require_once 'path/to/ResourceModel.php';
 
 class Router
 {
@@ -8,92 +7,135 @@ class Router
     {
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $method = $_SERVER['REQUEST_METHOD'];
-        error_log('URI: ' . $uri);
-        // remove BASE_DIRECTORY from URI
+        
+        error_log('Original URI: ' . $uri);
+        
+        // Remove BASE_DIRECTORY from URI
         $uri = str_replace(BASE_DIRECTORY, '', $uri);
-        error_log('URI: ' . $uri);
-        switch ($uri) {
-            case '/api/login':
-                require 'controllers/UsersController.php';
+        
+        error_log('Processed URI: ' . $uri);
+        
+        // Use switch(true) so preg_match() works
+        switch (true) {
+            case $uri === '/api/login':
+            case $uri === '/api/register':
+                require_once 'controllers/UsersController.php';
                 $controller = new UsersController();
-                if ($method == 'POST') {
-                    $controller->login();
+                
+                if ($method === 'POST') {
+                    if ($uri === '/api/login') {
+                        $controller->login();
+                    } else {
+                        $controller->register();
+                    }
                 }
                 break;
-            case '/api/register':
-                require 'controllers/UsersController.php';
-                $controller = new UsersController();
-                if ($method == 'POST') {
-                    $controller->register();
-                }
-                break;
-            case '/api/dashboard':
-                // verify token:
-                require 'controllers/UsersController.php';
+
+            case preg_match('#^/api/users(?:/(\d+))?/?$#', $uri, $matches):
+                error_log('Matches: ' . json_encode($matches));
+                
+                require_once 'controllers/UsersController.php';
                 $userController = new UsersController();
-                $isVerified = $userController->verifyToken();
-                if (!$isVerified) {
+
+                // Verify token before proceeding
+                if (!$userController->verifyToken()) {
                     http_response_code(401);
                     echo json_encode(['error' => 'Unauthorized']);
-                    exit(0);
+                    exit;
                 }
-                require 'controllers/DashboardController.php';
+
+                $controller = new UsersController();
+                $userId = $matches[1] ?? null;
+
+                if ($method === 'GET') {
+                    $controller->get();
+                } elseif ($method === 'POST') {
+                    $controller->register();
+                } elseif ($method === 'PUT') {
+                    $controller->put();
+                } elseif ($method === 'DELETE' && $userId) {
+                    $controller->delete($userId);
+                } else {
+                    http_response_code(400);
+                    echo json_encode(["error" => "Invalid request"]);
+                }
+                break;
+            case preg_match("#^/api/employees(?:/(\d+))?/?$#", $uri, $matches):
+                error_log("Matches: ". json_encode($matches));
+                require_once "controllers/EmployeesController.php";
+                $controller = new EmployeesController();
+                $userId = $matches[1] ?? null;
+                if ($method === "GET") {
+                    $controller->get();
+                } elseif ($method === "POST") {
+                    $controller->post();
+                } elseif ($method === "PUT") {
+                    $controller->put();
+                } elseif ($method === "DELETE" && $userId) {
+                    $controller->delete($userId);
+                } else {
+                    http_response_code(400);
+                    echo json_encode(["error" => "Invalid request"]);
+                }
+                break;
+            case $uri === '/api/dashboard':
+                require_once 'controllers/UsersController.php';
+                require_once 'controllers/DashboardController.php';
+
+                $userController = new UsersController();
+                
+                if (!$userController->verifyToken()) {
+                    http_response_code(401);
+                    echo json_encode(['error' => 'Unauthorized']);
+                    exit;
+                }
+
                 $controller = new DashboardController();
-                if ($method == 'GET') {
+                
+                if ($method === 'GET') {
                     $controller->get();
                 }
                 break;
-            case '/api/weeklytimesheet':
-                // verify token:
-                require 'controllers/UsersController.php';
+
+            case $uri === '/api/weeklytimesheet':
+                require_once 'controllers/UsersController.php';
+                require_once 'controllers/WeeklyTimesheetController.php';
+
                 $userController = new UsersController();
-                $isVerified = $userController->verifyToken();
-                if (!$isVerified) {
+
+                if (!$userController->verifyToken()) {
                     http_response_code(401);
                     echo json_encode(['error' => 'Unauthorized']);
-                    exit(0);
+                    exit;
                 }
 
-
-                require 'controllers/WeeklyTimesheetController.php';
                 $controller = new WeeklyTimesheetController();
-                if ($method == 'GET') {
-                    //if has query parameters
+
+                if ($method === 'GET') {
                     $params = $_GET;
-                    if (count($params) > 0) {
+
+                    if (!empty($params["week_start_date"])) {
                         error_log('Params: ' . json_encode($params));
                         $controller->getSingle($params["week_start_date"]);
                     } else {
                         $controller->getAll();
                     }
-                } elseif ($method == 'POST') {
+                } elseif ($method === 'POST') {
                     $controller->post();
-                } elseif ($method == 'PUT') {
+                } elseif ($method === 'PUT') {
                     $params = $_GET;
                     $input = json_decode(file_get_contents('php://input'), true);
-                    if(count($params) > 0) {
-                        error_log('Put: Params: ' . json_encode($params));
-                        if($params["hours_worked"] == "true") {
-                            $controller->putHoursOnly($input);
-                        }
+
+                    if (!empty($params["hours_worked"]) && $params["hours_worked"] === "true") {
+                        error_log('Put: Hours worked update: ' . json_encode($input));
+                        $controller->putHoursOnly($input);
                     } else {
                         error_log("Put: " . json_encode($input));
                         $controller->put($input);
                     }
+                }
+                break;
 
-                    
-                }
-                break;
-            case '/api/resource':
-                error_log('Resource');
-                require 'controllers/ResourceController.php';
-                $controller = new ResourceController();
-                if ($method == 'GET') {
-                    $controller->get();
-                } elseif ($method == 'POST') {
-                    $controller->post();
-                }
-                break;
             default:
                 http_response_code(404);
                 echo json_encode(['message' => 'Not Found']);

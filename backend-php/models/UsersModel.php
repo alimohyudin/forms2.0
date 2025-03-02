@@ -38,7 +38,7 @@ class UsersModel {
 
     public function getAll() {
         try {
-            $stmt = $this->db->query('SELECT * FROM users');
+            $stmt = $this->db->query('SELECT * FROM users WHERE deleted_at IS NULL ORDER BY user_id DESC');
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             // Handle query errors
@@ -59,16 +59,34 @@ class UsersModel {
         }
     }
 
+    /* update username and password by id and hash the password */
     public function update($id, $data) {
         try {
-            $stmt = $this->db->prepare('UPDATE users SET username = :username WHERE user_id = :id');
-            $stmt->execute([
-                'id' => $id,
-                'username' => $data['username'],
-            ]);
+            $id = $id;
+            $username = $data['username'];
+            $password = $data['password'];
+
+            $hash = password_hash($password, PASSWORD_BCRYPT);
+            $stmt = $this->db->prepare("UPDATE users SET username = :username, password = :password WHERE user_id = :id");
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+            $stmt->bindParam(':password', $hash, PDO::PARAM_STR);
+            $stmt->execute();
         } catch (PDOException $e) {
             // Handle query errors
             echo "Error updating user: " . $e->getMessage();
+        }
+    }
+
+    public function delete($id) {
+        try {
+            // Soft delete the user with the given ID
+            $stmt = $this->db->prepare('UPDATE users SET deleted_at = NOW() WHERE user_id = :id');
+            $stmt->execute(['id' => $id]);
+            return true;
+        } catch (PDOException $e) {
+            // Handle query errors
+            echo "Error deleting user: " . $e->getMessage();
         }
     }
 }

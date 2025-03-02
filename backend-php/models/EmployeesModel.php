@@ -28,17 +28,19 @@ class EmployeesModel {
 
     public function countEmployees($jobIds = null) {
         try {
-            $stmt = $this->db->query('SELECT COUNT(DISTINCT employee_name) FROM employees WHERE deleted_at IS NULL');
-            if($jobIds) {
+            if ($jobIds) {
                 $in = str_repeat('?,', count($jobIds) - 1) . '?';
-                $stmt = $this->db->prepare("SELECT COUNT(DISTINCT employee_name) FROM employees WHERE job_id IN ($in) AND deleted_at IS NULL");
+                $stmt = $this->db->prepare("SELECT COUNT(*) FROM employees e JOIN employees_jobs ej ON e.employee_id = ej.employee_id WHERE ej.job_id IN ($in) AND e.deleted_at IS NULL");
                 $stmt->execute($jobIds);
+            } else {
+                $stmt = $this->db->prepare('SELECT COUNT(*) FROM employees WHERE deleted_at IS NULL');
+                $stmt->execute();
             }
             return $stmt->fetchColumn();
         } catch (PDOException $e) {
             // Handle query errors
-            echo "Error fetching employees: " . $e->getMessage();
-            return [];
+            echo "Error counting employees: " . $e->getMessage();
+            return 0;
         }
     }
 
@@ -56,7 +58,7 @@ class EmployeesModel {
 
     public function getByJob($job_id) {
         try {
-            $stmt = $this->db->prepare('SELECT * FROM employees WHERE job_id = :job_id AND deleted_at IS NULL');
+            $stmt = $this->db->prepare('SELECT e.* FROM employees e JOIN employees_jobs ej ON e.employee_id = ej.employee_id WHERE ej.job_id = :job_id AND e.deleted_at IS NULL');
             $stmt->execute(['job_id' => $job_id]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -69,19 +71,8 @@ class EmployeesModel {
     public function getByJobs($job_ids) {
         try {
             $in = str_repeat('?,', count($job_ids) - 1) . '?';
-            $stmt = $this->db->prepare("SELECT * FROM employees WHERE job_id IN ($in) AND deleted_at IS NULL");
+            $stmt = $this->db->prepare("SELECT e.* FROM employees e JOIN employees_jobs ej ON e.employee_id = ej.employee_id WHERE ej.job_id IN ($in) AND e.deleted_at IS NULL");
             $stmt->execute($job_ids);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            // Handle query errors
-            echo "Error fetching employees: " . $e->getMessage();
-            return [];
-        }
-    }
-    public function getByJobId($job_id) {
-        try {
-            $stmt = $this->db->prepare('SELECT * FROM employees WHERE job_id = :job_id AND deleted_at IS NULL');
-            $stmt->execute(['job_id' => $job_id]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             // Handle query errors
@@ -92,16 +83,24 @@ class EmployeesModel {
 
     public function create($data) {
         try {
-            $stmt = $this->db->prepare('INSERT INTO employees (job_id, employee_name) VALUES (:job_id, :employee_name)');
+            $this->db->beginTransaction();
+            $stmt = $this->db->prepare('INSERT INTO employees (employee_name) VALUES (:employee_name)');
+            $stmt->execute(['employee_name' => $data['employee_name']]);
+            $employee_id = $this->db->lastInsertId();
+
+            $stmt = $this->db->prepare('INSERT INTO employees_jobs (employee_id, job_id) VALUES (:employee_id, :job_id)');
             $stmt->execute([
+                'employee_id' => $employee_id,
                 'job_id' => $data['job_id'],
-                'employee_name' => $data['employee_name'],
             ]);
-            // return the id of the inserted row
-            return $this->db->lastInsertId();
+
+            $this->db->commit();
+            return $employee_id;
         } catch (PDOException $e) {
+            $this->db->rollBack();
             // Handle query errors
             echo "Error creating employee: " . $e->getMessage();
+            return null;
         }
     }
 
@@ -122,9 +121,7 @@ class EmployeesModel {
         try {
             // Update the deleted_at timestamp to mark the record as deleted
             $stmt = $this->db->prepare('UPDATE employees SET deleted_at = NOW() WHERE employee_id = :employee_id');
-            $stmt->execute([
-                'employee_id' => $id,
-            ]);
+            $stmt->execute(['employee_id' => $id]);
         } catch (PDOException $e) {
             // Handle query errors
             echo "Error deleting employee: " . $e->getMessage();
@@ -134,10 +131,8 @@ class EmployeesModel {
     public function deleteByJobId($job_id) {
         try {
             // Update the deleted_at timestamp to mark the record as deleted
-            $stmt = $this->db->prepare('UPDATE employees SET deleted_at = NOW() WHERE job_id = :job_id');
-            $stmt->execute([
-                'job_id' => $job_id,
-            ]);
+            $stmt = $this->db->prepare('UPDATE employees e JOIN employees_jobs ej ON e.employee_id = ej.employee_id SET e.deleted_at = NOW() WHERE ej.job_id = :job_id');
+            $stmt->execute(['job_id' => $job_id]);
         } catch (PDOException $e) {
             // Handle query errors
             echo "Error deleting employees: " . $e->getMessage();

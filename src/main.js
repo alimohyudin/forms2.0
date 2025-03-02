@@ -53,34 +53,34 @@ Vue.prototype.$local = {
             // console.log(data)
             data = data.data;
 
-            if (data.message == "Login successful") {
+            // if (data.message == "Login successful") {
                 return new Promise(function (resolve, reject) {
                     if (subUrl.indexOf('login') >= 0 || subUrl.indexOf('verify-email') >= 0) {
-                        global.vm.$local.token = data.token;
-                        localStorage.setItem('user_token', data.token);
-                        localStorage.setItem('user_name', data.user.username)
-
-                        //global.vm.$socket = SocketIO('http://94.176.238.154:7861/', { query: `token=${data.data.token}` });
-
-                        //console.log(global.vm.$socket);
+                        if (data.token) {
+                            global.vm.$local.token = data.token;
+                            localStorage.setItem('user_token', data.token);
+                            localStorage.setItem('user_name', data.user.username)
+                        } else {
+                            reject(data);
+                        }
+                        // global.vm.$local.token = data.token;
+                        // localStorage.setItem('user_token', data.token);
+                        // localStorage.setItem('user_name', data.user.username)
                     }
                     //console.log("updatted token: " + global.vm.$local.token)
                     //console.log(data);
-                    if (data.extras && data.extras != {}) {
-                        data.data.v_extras = data.extras;
-                    }
 
                     resolve(data);
                 });
-            } else {
-                return new Promise(function ({ }, reject) {
-                    if (subUrl.indexOf('login') >= 0 || subUrl.indexOf('register') >= 0) {
-                        global.vm.$local.token = '';
-                        localStorage.removeItem('user_token');
-                    }
-                    reject(data);
-                });
-            }
+            // } else {
+            //     return new Promise(function ({ }, reject) {
+            //         if (subUrl.indexOf('login') >= 0 || subUrl.indexOf('register') >= 0) {
+            //             global.vm.$local.token = '';
+            //             localStorage.removeItem('user_token');
+            //         }
+            //         reject(data);
+            //     });
+            // }
         }).catch(function (err) {
             return new Promise(function (resolve, reject) {
                 //let err = data.message;
@@ -99,6 +99,17 @@ Vue.prototype.$local = {
         return axios.put(
             this.server + subUrl,
             formData,
+            config,
+        );
+    },
+    deleteRequest: function (subUrl, that) {
+        //console.log('hello post request')
+        let config = {
+            headers: { 'Authorization': 'Bearer ' + this.token },
+        }
+
+        return axios.delete(
+            this.server + subUrl,
             config,
         );
     },

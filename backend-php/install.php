@@ -36,13 +36,27 @@ try {
     $sql = "
     CREATE TABLE IF NOT EXISTS employees (
         employee_id INT AUTO_INCREMENT PRIMARY KEY,
-        job_id INT NOT NULL,
         employee_name VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL
+    )";
+    $pdo->exec($sql);
+
+    // Create Employees Jobs table
+    $sql = "
+    CREATE TABLE IF NOT EXISTS employees_jobs (
+        emp_job_id INT AUTO_INCREMENT PRIMARY KEY,
+        job_id INT NOT NULL,
+        employee_id INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         deleted_at TIMESTAMP NULL,
+        FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+            ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY (job_id) REFERENCES jobs(job_id)
             ON DELETE CASCADE ON UPDATE CASCADE
+        
     )";
     $pdo->exec($sql);
 

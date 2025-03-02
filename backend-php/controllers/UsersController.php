@@ -1,7 +1,7 @@
 <?php
 require_once('config.php');
 
-require 'models/UsersModel.php';
+require_once 'models/UsersModel.php';
 require_once 'vendors/jwt/src/JWTExceptionWithPayloadInterface.php';
 require_once 'vendors/jwt/src/BeforeValidException.php';
 require_once 'vendors/jwt/src/ExpiredException.php';
@@ -113,6 +113,32 @@ class UsersController
             error_log($e->getMessage());
             return false;
         }
+    }
+
+    public function get()
+    {
+        $usersModel = new UsersModel();
+        $users = $usersModel->getAll();
+        echo json_encode($users);
+    }
+
+    public function put(){
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id = $input['user_id'];
+        $username = $input['username'];
+        $password = $input['password'];
+        
+        $usersModel = new UsersModel();
+        $usersModel->update($id, ['username' => $username, 'password' => $password]);
+        echo json_encode(['message' => 'User updated successfully']);
+    }
+
+    public function delete($userId){
+        $id = $userId;
+        
+        $usersModel = new UsersModel();
+        $usersModel->delete($id);
+        echo json_encode(['message' => 'User deleted successfully']);
     }
 
     public function logout()

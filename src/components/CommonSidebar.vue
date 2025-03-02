@@ -29,16 +29,21 @@
                     <span>Foreman Report</span>
                 </router-link>
             </li>
-            <!-- <li clas="nav-item">
-                <router-link :to="'/user/trades-graph'" class="nav-link"
-                    @click.native="closeSidebar">
-                    <i class="bi bi-graph-up"></i>
-                    <span>Graph Stats</span>
-                </router-link>
-            </li> -->
 
+            <li class="nav-item" style="margin-bottom: 0px;">
+                <router-link :to="'/employees'" class="nav-link"
+                    @click.native="closeSidebar">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Employees</span>
+                </router-link>
+            </li>
             <li class="nav-item">
-            </li><!-- End Logout Nav -->
+                <router-link :to="'/users'" class="nav-link"
+                    @click.native="closeSidebar">
+                    <i class="bi bi-person"></i>
+                    <span>Users</span>
+                </router-link>
+            </li>
 
             <li class="nav-item" style="">
                 <!-- <a class="nav-link " href="index.html"> -->

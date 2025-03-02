@@ -8,9 +8,13 @@
         <div class="card">
           <div class="card-header"></div>
           <div class="card-header">
-            <h3><i class="bi bi-robot"></i> Weekly Timesheets</h3>
+            <h3><i class="bi bi-table"></i> Weekly Timesheets</h3>
           </div>
-          <div class="card-body"></div>
+          <div class="card-body">
+            <router-link :to="'/user/weekly'">
+              <button class="btn btn-primary">This Week</button>
+            </router-link>
+            </div>
           <div class="card-body">
             <div>
               <div class="table-responsive">

@@ -65,7 +65,7 @@ try {
     CREATE TABLE IF NOT EXISTS hours_worked (
         id INT AUTO_INCREMENT PRIMARY KEY,
         week_start_date DATE NOT NULL,
-        employee_id INT NOT NULL,
+        emp_job_id INT NOT NULL,
         mon DECIMAL(4,2) DEFAULT 0,
         tue DECIMAL(4,2) DEFAULT 0,
         wed DECIMAL(4,2) DEFAULT 0,
@@ -77,8 +77,8 @@ try {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         deleted_at TIMESTAMP NULL,
-        UNIQUE (week_start_date, employee_id),
-        FOREIGN KEY (employee_id) REFERENCES employees(employee_id) 
+        UNIQUE (week_start_date, emp_job_id),
+        FOREIGN KEY (emp_job_id) REFERENCES employees_jobs(emp_job_id) 
             ON DELETE CASCADE ON UPDATE CASCADE
     )";
     $pdo->exec($sql);

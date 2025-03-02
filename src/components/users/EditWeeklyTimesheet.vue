@@ -30,7 +30,6 @@
               </div>
 
               <!-- Loop through each job -->
-              <!-- Loop through each job -->
               <div v-for="(job, index) in timesheet.jobs" :key="job.job_id" class="job-card">
                 <div class="job-header">
                   <h2 @click="job.isEditing = true;" v-if="!job.isEditing">{{ job.job_name }}</h2>
@@ -53,7 +52,11 @@
                     </li>
                   </ul>
                   <div class="add-employee">
-                    <input v-model="newEmployeeName" placeholder="Employee Name" class="input-field" />
+                    <select v-model="selectedEmployeeId" class="input-field">
+                      <option v-for="employee in allEmployees" :key="employee.employee_id" :value="employee.employee_id">
+                        {{ employee.employee_name }}
+                      </option>
+                    </select>
                     <button @click="addEmployee(index)" class="add-btn">Add</button>
                   </div>
                 </div>
@@ -100,8 +103,8 @@
       return {
         timesheet: {},
         newJobName: '',
-        newEmployeeName: ''
-
+        selectedEmployeeId: null,
+        allEmployees: []
       };
     },
     methods: {
@@ -118,10 +121,13 @@
       // Add a new Job
       addJob() {
         const newJob = {
-          // id: this.jobs.length + 1,
-          names: []
+          job_id: Date.now(), // Unique ID for the new job
+          job_name: this.newJobName,
+          employees: [],
+          isEditing: false
         };
         this.timesheet.jobs.push(newJob);
+        this.newJobName = ''; // Clear the input field
       },
 
       // Delete a Job
@@ -131,10 +137,11 @@
 
       // Add Employee to Job
       addEmployee(jobIndex) {
-        console.log('addEmployee', jobIndex);
-        // const newEmployeeId = this.jobs[jobIndex].names.length + 1;
-        const newEmployee = { employee_name: this.newEmployeeName };
-        this.timesheet.jobs[jobIndex].employees.push(newEmployee);
+        const selectedEmployee = this.allEmployees.find(emp => emp.employee_id === this.selectedEmployeeId);
+        if (selectedEmployee) {
+          const newEmployee = { ...selectedEmployee, isEditing: false };
+          this.timesheet.jobs[jobIndex].employees.push(newEmployee);
+        }
       },
 
       // Delete Employee from Job
@@ -143,7 +150,6 @@
       },
 
       save() {
-        //console.log(formData);
         let that = this;
         this.$local
           .putRequest("/weeklytimesheet", this.timesheet)
@@ -158,28 +164,34 @@
             return;
           });
       },
+
+      fetchAllEmployees() {
+        let that = this;
+        this.$local.getRequest('/employees').then(function (data) {
+          that.allEmployees = data.data;
+        }).catch(function (msg) {
+          console.log(msg);
+        });
+      }
     },
     created: function () {
       let that = this;
-      // console.log('created');
-      // console.log("week_start_date: ", this.week_start_date);
-      //get request to http://localhost/forms2.0/backend-php/api/weeklytimesheet
       this.$local.getRequest('/weeklytimesheet?week_start_date=' + this.week_start_date).then(function (data) {
-        console.log("timesheetData", data.data);
-        // Ensure each job has an `isEditing` property
         data.data.jobs = data.data.jobs.map(job => ({
           ...job,
-          isEditing: false, // Ensures reactivity
+          isEditing: false,
           employees: job.employees.map(emp => ({
             ...emp,
-            isEditing: false, // Employee-level isEditing
+            isEditing: false,
           })),
         }));
         that.timesheet = data.data;
-
       }).catch(function (msg) {
         console.log(msg);
       });
+
+      // Fetch all employees when the component is created
+      this.fetchAllEmployees();
     }
   };
 </script>

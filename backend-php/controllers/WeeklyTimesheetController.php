@@ -92,7 +92,7 @@ class WeeklyTimesheetController
         $timesheetModel = new WeeklyTimesheetModel();
         $timesheetData = $timesheetModel->getByWeek($week_start_date);
 
-        error_log(json_encode($timesheetData));
+        // error_log(json_encode($timesheetData));
 
         // Check if timesheet data exists
         if (empty($timesheetData)) {
@@ -120,15 +120,16 @@ class WeeklyTimesheetController
         $employeesModel = new EmployeesModel();
         //print array_column($jobsData, 'job_id')
         $employeesData = $employeesModel->getByJobs(array_column($jobsData, 'job_id'));
-
+        
         // Fetch hours worked data for employees
         $hoursWorkedModel = new HoursWorkedModel();
-        $hoursWorkedData = $hoursWorkedModel->getByWeekAndEmployeeIds($week_start_date, array_column($employeesData, 'employee_id'));
-
+        $hoursWorkedData = $hoursWorkedModel->getByWeekAndEmployeeIds($week_start_date, array_column($employeesData, 'emp_job_id'));
+        // error_log(json_encode($hoursWorkedData));
+        
         // Group hours worked by employee_id
         $hoursByEmployee = [];
         foreach ($hoursWorkedData as $hours) {
-            $hoursByEmployee[$hours['employee_id']] = [
+            $hoursByEmployee[$hours['emp_job_id']] = [
                 'mon' => $hours['mon'],
                 'tue' => $hours['tue'],
                 'wed' => $hours['wed'],
@@ -152,7 +153,7 @@ class WeeklyTimesheetController
 
             foreach ($job['employees'] as &$employee) {
                 // Get hours worked for this employee
-                $employee['hours_worked'] = isset($hoursByEmployee[$employee['employee_id']]) ? $hoursByEmployee[$employee['employee_id']] : [
+                $employee['hours_worked'] = isset($hoursByEmployee[$employee['emp_job_id']]) ? $hoursByEmployee[$employee['emp_job_id']] : [
                     'mon' => null,
                     'tue' => null,
                     'wed' => null,
@@ -224,30 +225,31 @@ class WeeklyTimesheetController
             }
 
             // Fetch existing employees for this job
-            $existingEmployeesData = $employeesModel->getByJobId($jobId);
-            $existingEmployeeIds = array_column($existingEmployeesData, 'employee_id');
-            $inputEmployeeIds = array_column($inputJob['employees'], 'employee_id');
+            $existingEmployeesData = $employeesModel->getByJob($jobId);
+            $existingEmployeeJobIds = array_column($existingEmployeesData, 'emp_job_id');
+            $inputEmployeeIds = array_column($inputJob['employees'], 'emp_job_id');
+            // error_log(" existing employee ids: " . json_encode($existingEmployeeJobIds));
+            // error_log(" input employee ids: ". json_encode($inputEmployeeIds));
 
             // Delete employees that are missing in inputData
-            foreach ($existingEmployeeIds as $existingEmployeeId) {
-                if (!in_array($existingEmployeeId, $inputEmployeeIds)) {
-                    $employeesModel->delete($existingEmployeeId);
+            foreach ($existingEmployeeJobIds as $existingEmployeeJobId) {
+                // if (!in_array($existingEmployeeId, $inputEmployeeIds)) {
+                //     $employeesModel->delete($existingEmployeeId);
+                // }
+                if (!in_array($existingEmployeeJobId, haystack: $inputEmployeeIds)) {
+                    $employeesModel->delete_employees_jobs($existingEmployeeJobId);
                 }
             }
 
             // Process employees for this job
             foreach ($inputJob['employees'] as $inputEmployee) {
-                if (!empty($inputEmployee['employee_id'])) {
+                error_log("input employee: " . json_encode($inputEmployee));
+                if (empty($inputEmployee['emp_job_id'])) {
                     $employeeId = $inputEmployee['employee_id'];
-                    if (in_array($employeeId, $existingEmployeeIds)) {
-                        // Employee exists -> Update
-                        $employeesModel->update($employeeId, ['employee_name' => $inputEmployee['employee_name']]);
-                    }
-                } else {
-                    // Employee doesn't exist -> Create new
-                    $employeesModel->create([
-                        'job_id' => $jobId,
-                        'employee_name' => $inputEmployee['employee_name']
+                    // create employees_jobs record
+                    $employeesModel->create_emp_job([
+                        'employee_id' => $employeeId,
+                        'job_id' => $jobId
                     ]);
                 }
             }
@@ -292,24 +294,24 @@ class WeeklyTimesheetController
 
 
             // Fetch existing employees for this job
-            $existingEmployeesData = $employeesModel->getByJobId($jobId);
+            $existingEmployeesData = $employeesModel->getByJob($jobId);
             // Process employees for this job
             foreach ($inputJob['employees'] as $inputEmployee) {
-                if (!empty($inputEmployee['employee_id'])) {
-                    $employeeId = $inputEmployee['employee_id'];
+                if (!empty($inputEmployee['emp_job_id'])) {
+                    $emp_job_id = $inputEmployee['emp_job_id'];
 
                     // Handle hours worked for this employee
                     $hoursWorkedData = $inputEmployee['hours_worked'];
-                    error_log(json_encode($hoursWorkedData));
+                    // error_log(json_encode($hoursWorkedData));
 
                     // Check if hours worked record exists for this employee and week
-                    $existingHours = $hoursWorkedModel->getByWeekAndEmployee($week_start_date, $employeeId);
-                    error_log(json_encode($existingHours));
+                    $existingHours = $hoursWorkedModel->getByWeekAndEmployee($week_start_date, $emp_job_id);
+                    // error_log(json_encode($existingHours));
                     if ($existingHours) {
                         // Update existing hours worked
                         $hoursWorkedModel->update([
                             'week_start_date' => $week_start_date,
-                            'employee_id' => $employeeId,
+                            'emp_job_id' => $emp_job_id,
                             'mon' => $hoursWorkedData["mon"],
                             'tue' => $hoursWorkedData["tue"],
                             'wed' => $hoursWorkedData["wed"],
@@ -322,7 +324,7 @@ class WeeklyTimesheetController
                         // Create new hours worked record
                         $hoursWorkedModel->create([
                             'week_start_date' => $week_start_date,
-                            'employee_id' => $employeeId,
+                            'emp_job_id' => $emp_job_id,
                             'mon' => $hoursWorkedData["mon"],
                             'tue' => $hoursWorkedData["tue"],
                             'wed' => $hoursWorkedData["wed"],

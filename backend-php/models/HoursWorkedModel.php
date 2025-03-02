@@ -15,14 +15,14 @@ class HoursWorkedModel {
         }
     }
 
-    public function getByWeekAndEmployee($week_start_date, $employee_id) {
+    public function getByWeekAndEmployee($week_start_date, $emp_job_id) {
         try {
-            // error_log("SELECT * FROM hours_worked WHERE week_start_date = :week_start_date AND employee_id = :employee_id");
-            // error_log("week_start_date: $week_start_date, employee_id: $employee_id");
-            $stmt = $this->db->prepare('SELECT * FROM hours_worked WHERE week_start_date = :week_start_date AND employee_id = :employee_id');
+            // error_log("SELECT * FROM hours_worked WHERE week_start_date = :week_start_date AND emp_job_id = :emp_job_id");
+            // error_log("week_start_date: $week_start_date, emp_job_id: $emp_job_id");
+            $stmt = $this->db->prepare('SELECT * FROM hours_worked WHERE week_start_date = :week_start_date AND emp_job_id = :emp_job_id');
             $stmt->execute([
                 'week_start_date' => $week_start_date,
-                'employee_id' => $employee_id,
+                'emp_job_id' => $emp_job_id,
             ]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -33,23 +33,23 @@ class HoursWorkedModel {
         }
     }
 
-    public function getByWeekAndEmployeeIds($week_start_date, $employee_ids) {
+    public function getByWeekAndEmployeeIds($week_start_date, $emp_job_ids) {
         try {
             // Generate named parameters for each employee_id
             $placeholders = implode(', ', array_map(function($key) {
-                return ":employee_id_$key";
-            }, array_keys($employee_ids)));
+                return ":emp_job_id_$key";
+            }, array_keys($emp_job_ids)));
             
-            // Prepare the SQL statement with named parameters for employee_ids
-            $stmt = $this->db->prepare("SELECT * FROM hours_worked WHERE week_start_date = :week_start_date AND employee_id IN ($placeholders)");
+            // Prepare the SQL statement with named parameters for emp_job_ids
+            $stmt = $this->db->prepare("SELECT * FROM hours_worked WHERE week_start_date = :week_start_date AND emp_job_id IN ($placeholders)");
             
             // Combine the parameters
             $params = ['week_start_date' => $week_start_date];
-            foreach ($employee_ids as $key => $employee_id) {
-                $params["employee_id_$key"] = $employee_id;
+            foreach ($emp_job_ids as $key => $emp_job_id) {
+                $params["emp_job_id_$key"] = $emp_job_id;
             }
             
-            error_log("SELECT * FROM hours_worked WHERE week_start_date = :week_start_date AND employee_id IN ($placeholders)");
+            error_log("SELECT * FROM hours_worked WHERE week_start_date = :week_start_date AND emp_job_id IN ($placeholders)");
             error_log(print_r($params, true));
             
             // Execute with the merged parameters
@@ -67,13 +67,13 @@ class HoursWorkedModel {
         try {
             $stmt = $this->db->prepare('
                 INSERT INTO hours_worked (
-                    week_start_date, employee_id, mon, tue, wed, thu, fri, sat, sun
+                    week_start_date, emp_job_id, mon, tue, wed, thu, fri, sat, sun
                 ) VALUES (
-                    :week_start_date, :employee_id, :mon, :tue, :wed, :thu, :fri, :sat, :sun
+                    :week_start_date, :emp_job_id, :mon, :tue, :wed, :thu, :fri, :sat, :sun
                 )');
             $stmt->execute([
                 'week_start_date' => $data['week_start_date'],
-                'employee_id' => $data['employee_id'],
+                'emp_job_id' => $data['emp_job_id'],
                 'mon' => $data['mon'],
                 'tue' => $data['tue'],
                 'wed' => $data['wed'],
@@ -92,11 +92,11 @@ class HoursWorkedModel {
             $stmt = $this->db->prepare('
                 UPDATE hours_worked 
                 SET mon = :mon, tue = :tue, wed = :wed, thu = :thu, fri = :fri, sat = :sat, sun = :sun, updated_at = CURRENT_TIMESTAMP
-                WHERE week_start_date = :week_start_date AND employee_id = :employee_id
+                WHERE week_start_date = :week_start_date AND emp_job_id = :emp_job_id
             ');
             $stmt->execute([
                 'week_start_date' => $data['week_start_date'],
-                'employee_id' => $data['employee_id'],
+                'emp_job_id' => $data['emp_job_id'],
                 'mon' => $data['mon'],
                 'tue' => $data['tue'],
                 'wed' => $data['wed'],
@@ -110,12 +110,12 @@ class HoursWorkedModel {
         }
     }
 
-    public function delete($week_start_date, $employee_id) {
+    public function delete($week_start_date, $emp_job_id) {
         try {
-            $stmt = $this->db->prepare('DELETE FROM hours_worked WHERE week_start_date = :week_start_date AND employee_id = :employee_id');
+            $stmt = $this->db->prepare('DELETE FROM hours_worked WHERE week_start_date = :week_start_date AND emp_job_id = :emp_job_id');
             $stmt->execute([
                 'week_start_date' => $week_start_date,
-                'employee_id' => $employee_id,
+                'emp_job_id' => $emp_job_id,
             ]);
         } catch (PDOException $e) {
             echo "Error deleting hours worked: " . $e->getMessage();

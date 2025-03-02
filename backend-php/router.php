@@ -78,6 +78,32 @@ class Router
                     echo json_encode(["error" => "Invalid request"]);
                 }
                 break;
+
+            case preg_match("#^/api/foreman_reports(?:/(\d+))?/?$#", $uri, $matches):
+                error_log("Matches: ". json_encode($matches));
+                require_once "controllers/ForemanReportController.php";
+                $controller = new ForemanReportController($db);
+                $reportId = $matches[1] ?? null;
+                if ($method === "GET") {
+                    if ($reportId) {
+                        echo json_encode($controller->getReport($reportId));
+                    } else {
+                        echo json_encode($controller->getAllReports());
+                    }
+                } elseif ($method === "POST") {
+                    $data = json_decode(file_get_contents('php://input'), true);
+                    $controller->createReport($data);
+                } elseif ($method === "PUT" && $reportId) {
+                    $data = json_decode(file_get_contents('php://input'), true);
+                    $controller->updateReport($reportId, $data);
+                } elseif ($method === "DELETE" && $reportId) {
+                    $controller->deleteReport($reportId);
+                } else {
+                    http_response_code(400);
+                    echo json_encode(["error" => "Invalid request"]);
+                }
+                break;
+
             case $uri === '/api/dashboard':
                 require_once 'controllers/UsersController.php';
                 require_once 'controllers/DashboardController.php';

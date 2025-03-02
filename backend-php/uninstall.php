@@ -6,7 +6,7 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Drop tables in reverse order of creation to handle foreign key constraints
-    $tables = ['users', 'hours_worked', 'employees', 'employees_jobs', 'jobs', 'weekly_timesheet'];
+    $tables = ['users', 'hours_worked', 'employees', 'employees_jobs', 'jobs', 'weekly_timesheet', 'foreman_reports'];
 
     foreach ($tables as $table) {
         $sql = "DROP TABLE IF EXISTS $table";

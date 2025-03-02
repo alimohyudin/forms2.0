@@ -27,11 +27,6 @@ export default new Router({
             component: require('../components/users/Employees').default,
         },
         {
-            path: '/user/foreman-report',
-            name: 'foreman-report-page',
-            component: require('../components/users/ForemanReport').default,
-        },
-        {
             path: '/user/weekly',
             name: 'weekly-timesheet-page',
             component: require('../components/users/WeeklyTimesheet').default,
@@ -46,6 +41,16 @@ export default new Router({
             name: 'edit-weekly-page',
             component: require('../components/users/EditWeeklyTimesheet').default,
             props: true
+        },
+        {
+            path: '/user/foreman-report',
+            name: 'foreman-report-page',
+            component: require('../components/users/ForemanReport').default,
+        },
+        {
+            path: '/user/list-foreman-reports',
+            name: 'list-foreman-reports-page',
+            component: require('../components/users/ListForemanReports').default,
         },
         /* ,
         {

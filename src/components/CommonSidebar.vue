@@ -23,10 +23,10 @@
                 </router-link>
             </li>
             <li clas="nav-item">
-                <router-link :to="'/user/foreman-report'" class="nav-link"
+                <router-link :to="'/user/list-foreman-reports'" class="nav-link"
                     @click.native="closeSidebar">                    
                     <i class="bi bi-graph-up"></i>
-                    <span>Foreman Report</span>
+                    <span>Foreman Reports</span>
                 </router-link>
             </li>
 

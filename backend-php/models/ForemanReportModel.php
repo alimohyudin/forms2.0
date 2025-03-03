@@ -4,7 +4,7 @@ class ForemanReportModel
 {
     private $db;
 
-    public function __construct($db)
+    public function __construct()
     {
         // Use the constants from config.php for database connection
         $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME;
@@ -18,6 +18,7 @@ class ForemanReportModel
 
     public function createReport($data)
     {
+        error_log(print_r($data, true));
         $sql = "INSERT INTO foreman_reports (report_date, foreman_name, project_name, weather_condition, safety_meeting, soil_condition, work_performed_today, problems_delays, equipment_rented, trucks, equipment) 
                 VALUES (:report_date, :foreman_name, :project_name, :weather_condition, :safety_meeting, :soil_condition, :work_performed_today, :problems_delays, :equipment_rented, :trucks, :equipment)";
         $stmt = $this->db->prepare($sql);
@@ -27,9 +28,22 @@ class ForemanReportModel
     public function getReport($id)
     {
         $sql = "SELECT * FROM foreman_reports WHERE id = :id";
+        
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id' => $id]);
         return $stmt->fetch();
+    }
+    public function getByWeek($week_start_date) {
+        try {
+            $stmt = $this->db->prepare('SELECT * FROM foreman_reports WHERE report_date = :report_date');
+            $stmt->execute([
+                'report_date' => $week_start_date,
+            ]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Error fetching foreman_reports: " . $e->getMessage();
+            return [];
+        }
     }
 
     public function updateReport($id, $data)
@@ -61,7 +75,7 @@ class ForemanReportModel
 
     public function getAllReports()
     {
-        $sql = "SELECT * FROM foreman_reports";
+        $sql = "SELECT * FROM foreman_reports WHERE report_date != '1999-02-01'";
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll();
     }

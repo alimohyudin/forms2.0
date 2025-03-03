@@ -82,11 +82,15 @@ class Router
             case preg_match("#^/api/foreman_reports(?:/(\d+))?/?$#", $uri, $matches):
                 error_log("Matches: ". json_encode($matches));
                 require_once "controllers/ForemanReportController.php";
-                $controller = new ForemanReportController($db);
+                $controller = new ForemanReportController();
                 $reportId = $matches[1] ?? null;
                 if ($method === "GET") {
-                    if ($reportId) {
-                        echo json_encode($controller->getReport($reportId));
+                    $params = $_GET;
+
+                    if (!empty($params["week_start_date"])) {
+                        // error_log('Params: ' . json_encode($params));
+                        // $controller->getSingle($params["week_start_date"]);
+                        echo json_encode($controller->getReport($params["week_start_date"]));
                     } else {
                         echo json_encode($controller->getAllReports());
                     }
@@ -95,7 +99,7 @@ class Router
                     $controller->createReport($data);
                 } elseif ($method === "PUT" && $reportId) {
                     $data = json_decode(file_get_contents('php://input'), true);
-                    $controller->updateReport($reportId, $data);
+                    $controller->updateReport(id: $reportId, $data);
                 } elseif ($method === "DELETE" && $reportId) {
                     $controller->deleteReport($reportId);
                 } else {

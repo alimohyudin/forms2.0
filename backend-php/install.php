@@ -38,22 +38,48 @@ try {
     $pdo->exec($sql);
 
     //insert data into foreman_reports
-    $workPerformed = json_encode([["task" => "Installed 5 sewer service"]]);
+    // $workPerformed = json_encode([["task" => "Installed 5 sewer service"]]);
     $trucksUsed = json_encode([
-        ["name" => "Brian Brewer 2004 Ford F350 (red) Diesel", "hours" => 8],
-        ["name" => "Juan Arroyo 2023 F250 Ford Diesel", "hours" => null]
+        ["name"=> "Brian Brewer 2004 Ford F350 (red) Diesel", "hours"=> 8],
+        ["name"=> "Juan Arroyo 2023 F250 Ford Diesel", "hours"=> null],
+        ["name"=> "Jacinto Lopez 2015 F250 Ford Gas", "hours"=> null],
+        ["name"=> "Manny Arroyo 2020 F250 Ford Gas", "hours"=> null],
+        ["name"=> "Mario Basie 2022 F350 Duly Gas", "hours"=> null],
+        ["name"=> "2004 Mack Dump Truck Diesel", "hours"=> null]
+    ]);
+    $equipment = json_encode([
+        ["name"=> "Volvo 355 Excavator", "hours"=> 8],
+        ["name"=> "Komatsu PC 228 Backhoe", "hours"=> null],
+        ["name"=> "Volvo Excavator 145EL", "hours"=> 8],
+        ["name"=> "Linkbelt Spin Ace 75 Backhoe", "hours"=> 8],
+        ["name"=> "Doosan DX502 Mini Excavator", "hours"=> null],
+        ["name"=> "Volvo L90 Excavator", "hours"=> 8],
+        ["name"=> "Komatsu WA 250 Loader", "hours"=> null],
+        ["name"=> "Volvo L70 Loader", "hours"=> null],
+        ["name"=> "Volvo L45 Compact Loader", "hours"=> null],
+        ["name"=> "Komatsu CK 35 Track Loader", "hours"=> null],
+        ["name"=> "Ingersoll-Rand SD-40 Roller", "hours"=> null],
+        ["name"=> "Bomag 900-50 Roller", "hours"=> null],
+        ["name"=> "Broce Sweeper Laymoor Broom", "hours"=> null],
+        ["name"=> "12\\\" Thompson Wellpoint Pump", "hours"=> null],
+        ["name"=> "8\\\" Thompson Wellpoint Pump", "hours"=> null],
+        ["name"=> "Thompson Jet Pump", "hours"=> null],
+        ["name"=> "Asphalt Zipper", "hours"=> null],
+        ["name"=> "Rock Box", "hours"=> null],
+        ["name"=> "Trench Box", "hours"=> null],
+        ["name"=> "Manhole Box", "hours"=> null]
     ]);
 
     $sql = "INSERT INTO foreman_reports (
             report_date, foreman_name, project_name, weather_condition, safety_meeting, soil_condition, 
             work_performed_today, problems_delays, equipment_rented, trucks, equipment
         ) VALUES (
-            '2024-02-01', 'Elman', '9418', 'Hot', TRUE, NULL,
-            '$workPerformed',
+            '1999-02-01', 'Elman', '9418', 'Hot', TRUE, NULL,
+            '[{\"work\": \"Installed 5 sewer service\"}]',
             '[]',
             '[]',
             '$trucksUsed',
-            '[]'
+            '$equipment'
         );";
     $pdo->exec(statement: $sql);
 
@@ -133,6 +159,10 @@ try {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         deleted_at TIMESTAMP NULL
     )";
+    $pdo->exec($sql);
+
+    // insert user kennyp into users table
+    $sql = "INSERT INTO users (username, password) VALUES ('kennyp', '$2y$10$3jV9OgeX4f0PL5fc/zYsz.etym9dJIAEM2fjIvp9p3K4dM1Luc1Uu')";
     $pdo->exec($sql);
 
     echo "Tables created successfully.";

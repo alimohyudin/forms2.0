@@ -6,9 +6,9 @@ class ForemanReportController
 {
     private $model;
 
-    public function __construct($db)
+    public function __construct()
     {
-        $this->model = new ForemanReportModel($db);
+        $this->model = new ForemanReportModel();
     }
 
     public function createReport($data)
@@ -16,9 +16,26 @@ class ForemanReportController
         $this->model->createReport($data);
     }
 
-    public function getReport($id)
+    // public function getReport($id)
+    // {
+    //     return $this->model->getReport($id);
+    // }
+
+    public function getReport($week_start_date)
     {
-        return $this->model->getReport($id);
+        $data = $this->model->getByWeek($week_start_date);
+
+        if ($data) {
+            return $data;
+        } else {
+            //create a new report using the report from date 1999-02-01
+            $data = $this->model->getByWeek('1999-02-01');
+            $data['report_date'] = $week_start_date;
+            unset($data['id']);
+            $this->model->createReport($data);
+            return $this->model->getByWeek($week_start_date);
+        }
+        
     }
 
     public function updateReport($id, $data)

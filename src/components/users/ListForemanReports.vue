@@ -12,7 +12,7 @@
           </div>
           <div class="card-body">
             <router-link :to="'/user/foreman-report'">
-              <button class="btn btn-primary">This Week</button>
+              <button class="btn btn-primary">Today</button>
             </router-link>
           </div>
           <div class="card-body">

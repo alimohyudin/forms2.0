@@ -25,95 +25,104 @@
                                                 <div><label for="startDateInput" class="form-label">Date: </label></div>
                                                 <div><label for="startDateInput" class="form-label">Day:&nbsp;</label>
                                                 </div>
-                                                <div><label for="startDateInput" class="form-label">Foreman Name:
+                                                <div><label for="foremanNameInput" class="form-label">Foreman Name:
                                                     </label></div>
-                                                <div><label for="startDateInput" class="form-label">Project Name
+                                                <div><label for="projectNameInput" class="form-label">Project Name
                                                     </label></div>
 
                                             </div>
                                             <div class="col-9 foreman-inputs" style="padding-right: 70px;">
-                                                <div class="  px-0">
-                                                    <input type="text" name="email" class="form-control"
-                                                        v-model="startDate">
+                                                <div class="px-0">
+                                                    <input type="text" name="date" class="form-control"
+                                                        v-model="reportDate" disabled>
                                                 </div>
                                                 <div class="">
-                                                    <input type="text" name="email" class="form-control"
-                                                        v-model="startDate">
+                                                    <input type="text" name="day" class="form-control"
+                                                        v-model="reportDay" disabled>
                                                 </div>
                                                 <div class="">
-                                                    <input type="text" name="email" class="form-control"
-                                                        v-model="startDate">
+                                                    <input type="text" name="foremanName" class="form-control"
+                                                        v-model="foremanName">
                                                 </div>
                                                 <div class="">
-                                                    <input type="text" name="email" class="form-control"
-                                                        v-model="startDate">
+                                                    <input type="text" name="projectName" class="form-control"
+                                                        v-model="projectName">
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="box">
                                                 <div style="display: flex; align-items: center;">
-                                                    <label for="startDateInput" class="form-label bold"
+                                                    <label for="workPerformedTodayInput" class="form-label bold"
                                                         style="margin-right: 10px;">
                                                         Work Performed Today
                                                     </label>
                                                 </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
+                                                <div style="display: flex; align-items: center;"
+                                                    v-for="(work, index) in workPerformedToday">
+                                                    <input type="text" name="work" class="form-control" style="flex: 1;"
+                                                        v-model="work.work">
                                                 </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
+
+
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="box double-column">
+                                                <div class="row">
+                                                    <div class="border-right col-9 bold">
+                                                        Trucks
+                                                    </div>
+                                                    <div class="col-3 bold">
+                                                        Hours
+                                                    </div>
                                                 </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
-                                                </div>
-                                                <div style="display: flex; align-items: center;">
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
+                                                <div v-for="(truck, index) in trucks" :key="index" class="row">
+                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
+                                                        {{ truck.name }}
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <input type="text" name="hours" class="form-control"
+                                                            v-model="truck.hours">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                        <div class="row">
+                                            <div class="box">
+                                                <div style="display: flex; align-items: center;">
+                                                    <label for="workPerformedTodayInput" class="form-label bold"
+                                                        style="margin-right: 10px;">
+                                                        Problems/Delays
+                                                    </label>
+                                                </div>
+                                                <div style="display: flex; align-items: center;"
+                                                    v-for="(work, index) in problemsDelays">
+                                                    <input type="text" name="work" class="form-control" style="flex: 1;"
+                                                        v-model="work.work">
+                                                </div>
 
+
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="box">
+                                                <div style="display: flex; align-items: center;">
+                                                    <label for="workPerformedTodayInput" class="form-label bold"
+                                                        style="margin-right: 10px;">
+                                                        Equipment Rented
+                                                    </label>
+                                                </div>
+                                                <div style="display: flex; align-items: center;"
+                                                    v-for="(work, index) in equipmentRented">
+                                                    <input type="text" name="work" class="form-control" style="flex: 1;"
+                                                        v-model="work.work">
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <!-- Second column of page -->
                                     <div class="col-5">
@@ -121,28 +130,28 @@
                                         <div class="row">
                                             <div class="box weather-box col-9">
                                                 <div style="display: flex; align-items: center;">
-                                                    <label for="startDateInput" class="form-label"
+                                                    <label for="weatherConditionInput" class="form-label"
                                                         style="margin-right: 10px;">
                                                         Weather Condition:
                                                     </label>
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
+                                                    <input type="text" name="weatherCondition" class="form-control"
+                                                        v-model="weatherCondition" style="flex: 1;">
                                                 </div>
                                                 <div style="display: flex; align-items: center;">
-                                                    <label for="startDateInput" class="form-label"
+                                                    <label for="safetyMeetingInput" class="form-label"
                                                         style="margin-right: 10px;">
                                                         Safety Meeting:
                                                     </label>
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
+                                                    <input type="text" name="safetyMeeting" class="form-control"
+                                                        v-model="safetyMeeting" style="flex: 1;">
                                                 </div>
                                                 <div style="display: flex; align-items: center;">
-                                                    <label for="startDateInput" class="form-label"
+                                                    <label for="soilConditionInput" class="form-label"
                                                         style="margin-right: 10px;">
-                                                        Spoil Condition:
+                                                        Soil Condition:
                                                     </label>
-                                                    <input type="text" name="email" class="form-control"
-                                                        style="flex: 1;">
+                                                    <input type="text" name="soilCondition" class="form-control"
+                                                        v-model="soilCondition" style="flex: 1;">
                                                 </div>
                                             </div>
                                         </div>
@@ -157,34 +166,13 @@
                                                         Hours
                                                     </div>
                                                 </div>
-                                                <div class="row">
+                                                <div v-for="(truck, index) in trucks" :key="index" class="row">
                                                     <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Manuel Arroyo
+                                                        {{ truck.name }}
                                                     </div>
-
                                                     <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Brandon Madina
-                                                    </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Orlando Suarez
-                                                    </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
+                                                        <input type="text" name="hours" class="form-control"
+                                                            v-model="truck.hours">
                                                     </div>
                                                 </div>
                                             </div>
@@ -193,135 +181,26 @@
                                         <div class="row">
                                             <div class="box double-column">
                                                 <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Juan Arroyo Dominguez
+                                                    <div class="border-right col-9 bold">
+                                                        Equipment
                                                     </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
+                                                    <div class="col-3 bold">
+                                                        Hours
                                                     </div>
                                                 </div>
-                                                <div class="row">
+                                                <div v-for="(equipment, index) in equipmentList" :key="index"
+                                                    class="row">
                                                     <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Juan Arroyo Jr
+                                                        {{ equipment.name }}
                                                     </div>
-
                                                     <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Jimmy Rois
-                                                    </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Douglas Sumrall
-                                                    </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Jairo Lazada
-                                                    </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Christian V Lopez
-                                                    </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
+                                                        <input type="text" name="hours" class="form-control"
+                                                            v-model="equipment.hours">
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-
-                                        <div class="row">
-                                            <div class="box double-column">
-                                                <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Brain Brewer
-                                                    </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Jose Andrade Gasca
-                                                    </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Bayardo Solorzano Villalto
-                                                    </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Douglas Sumrall
-                                                    </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Jairo Lazada
-                                                    </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        Christian V Lopez
-                                                    </div>
-
-                                                    <div class="col-3">
-                                                        <input type="text" name="email" class="form-control"
-                                                            style="width: 100%;" v-model="startDate">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        
                                     </div>
 
                                 </div>
@@ -329,14 +208,14 @@
 
                         </div>
                         <div class="row" style="margin: 5px 0px;">
-                          <div class="col-6">
-                            <router-link to="/">
-                              <button style="margin-left: 10px;">Dashboard</button>
-                            </router-link>
-                          </div>
-                          <div v-if="previousCount == 0 || true" class="col-6" style="text-align: right;">
-                            <button @click="save()">Save</button>
-                          </div>
+                            <div class="col-6">
+                                <router-link to="/">
+                                    <button style="margin-left: 10px;">Dashboard</button>
+                                </router-link>
+                            </div>
+                            <div v-if="previousCount == 0 || true" class="col-6" style="text-align: right;">
+                                <button @click="save()">Save</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -359,129 +238,116 @@
         },
         data() {
             return {
-                //   jobs: [
-                //     {
-                //       id: 1,
-                //       names: [{
-                //         id: 1,
-                //         name: 'Manuel Arroyo',
-                //       },
-                //       {
-                //         id: 2,
-                //         name: 'Brandon Medina',
-                //       },
-                //       {
-                //         id: 3,
-                //         name: 'Oriando Suarez',
-                //       }]
-                //     }, {
-                //       id: 2,
-                //       names: [{
-                //         id: 1,
-                //         name: 'Juan Arroyo Dominguez',
-                //       },
-                //       {
-                //         id: 2,
-                //         name: 'Juan Arroyo Jr',
-                //       },
-                //       {
-                //         id: 3,
-                //         name: 'Jimmy Rios',
-                //       },
-                //       {
-                //         id: 4,
-                //         name: 'Douglas Sumrall',
-                //       },
-                //       {
-                //         id: 5,
-                //         name: 'Jairo Lazada',
-                //       },
-                //       {
-                //         id: 6,
-                //         name: 'Christian V Lopez',
-                //       }]
-                //     },
-                //     {
-                //       id: 3,
-                //       names: [{
-                //         id: 1,
-                //         name: 'Brian Brewer',
-                //       },
-                //       {
-                //         id: 2,
-                //         name: 'Jose Andrade Gasca',
-                //       },
-                //       {
-                //         id: 3,
-                //         name: 'Bayardo Solorzano Villalto',
-                //       },
-                //       {
-                //         id: 4,
-                //         name: 'Rodrigo Rodriguez Reyna',
-                //       },
-                //       {
-                //         id: 5,
-                //         name: 'Brandon Molden',
-                //       }]
-                //     },
-                //     {
-                //       id: 4,
-                //       names: [{
-                //         id: 1,
-                //         name: 'Jacinto Lopez',
-                //       },
-                //       {
-                //         id: 2,
-                //         name: 'Josue Tomas Lopeza',
-                //       },
-                //       {
-                //         id: 3,
-                //         name: 'Juan Perez',
-                //       },
-                //       {
-                //         id: 4,
-                //         name: 'Yoel Hernandez Gonzalez',
-                //       }]
-                //     }
-                //   ]
+                reportId: '',
+                reportDate: '',
+                reportDay: '',
+                foremanName: '',
+                projectName: '',
+                weatherCondition: '',
+                safetyMeeting: '',
+                soilCondition: '',
+                workPerformedToday: [],
+                problemsDelays: [],
+                equipmentRented: [],
+                trucks: [],
+                equipmentList: [],
+                previousCount: 0
             };
         },
         methods: {
-            // login() {
-            //   let formData = $("#login_form").serialize();
-            //   //console.log(formData);
-            //   let that = this;
-            //   this.$local
-            //     .postRequest("/user/login", formData)
-            //     .then(function (data) {
-            //       //console.log(data);
-            //       //that.users = data.users;
-            //       if (data.accountType === 'admin') {
-            //         that.$router.push({ name: "admin-dashboard-page" });
-            //       } else {
-            //         that.$router.push({ name: "user-dashboard-page" });
-            //       }
+            getPreviousWeekTimesheet(previousCount) {
+                let that = this;
+                this.previousCount = previousCount;
+                //calculate week start date
+                let week_start_date = new Date();
+                // week_start_date.setDate(week_start_date.getDate() - week_start_date.getDay() + 1 - (previousCount * 7));
+                //format to 2025-01-28
+                week_start_date = week_start_date.toISOString().split('T')[0];
+                console.log(week_start_date);
 
-            //       return;
-            //     })
-            //     .catch(function (msg) {
-            //       console.log(msg);
-            //       if (msg && msg.toString().includes('Could not find your account'))
-            //         that.$toaster.error("Email/password is wrong.");
-            //       else if (msg && msg.toString().includes('Verify your email first')) {
-            //         that.$toaster.error("Verify Email first.");
-            //         that.$router.push({ name: "verify-email-page", params: { email: that.email } });
-            //       }
-            //       else
-            //         that.$toaster.error(msg);
-            //       return;
-            //     });
-            // },
+                this.$local
+                    .getRequest("/foreman_reports?week_start_date=" + week_start_date)
+                    .then(function (data) {
+                        console.log(data);
+                        that.reportId = data.data.id;
+                        that.reportDate = data.data.report_date;
+                        that.reportDay = (new Date(data.data.report_date)).toLocaleDateString('en-US', {
+                            weekday: 'long'
+                        });
+                        that.foremanName = data.data.foreman_name;
+                        that.projectName = data.data.project_name;
+                        that.weatherCondition = data.data.weather_condition;
+                        that.safetyMeeting = data.data.safety_meeting;
+                        that.soilCondition = data.data.soil_condition;
+                        that.workPerformedToday = JSON.parse(data.data.work_performed_today);
+                        that.problemsDelays = JSON.parse(data.data.problems_delays);
+                        that.equipmentRented = JSON.parse(data.data.equipment_rented);
+                        that.trucks = JSON.parse(data.data.trucks);
+                        that.equipmentList = JSON.parse(data.data.equipment);
+
+                        // make sure worked performed today is an array of 15 items
+                        if (that.workPerformedToday.length < 15) {
+                            for (let i = that.workPerformedToday.length; i < 15; i++) {
+                                that.workPerformedToday.push({
+                                    work: ''
+                                });
+                            }
+                        }
+                        if (that.problemsDelays.length < 5) {
+                            for (let i = that.problemsDelays.length; i < 5; i++) {
+                                that.problemsDelays.push({
+                                    work: ''
+                                });
+                            }
+                        }
+                        if (that.equipmentRented.length < 3) {
+                            for (let i = that.equipmentRented.length; i < 3; i++) {
+                                that.equipmentRented.push({
+                                    equipment: ''
+                                });
+                            }
+                        }
+
+                        return;
+                    })
+                    .catch(function (msg) {
+                        console.log(msg);
+                        that.$toaster.error(msg);
+                    });
+            },
+            save() {
+                let that = this;
+                let payload = {
+                    report_date: this.reportDate,
+                    foreman_name: this.foremanName,
+                    project_name: this.projectName,
+                    weather_condition: this.weatherCondition,
+                    safety_meeting: this.safetyMeeting,
+                    soil_condition: this.soilCondition,
+                    work_performed_today: JSON.stringify(this.workPerformedToday),
+                    problems_delays: JSON.stringify(this.problemsDelays),
+                    equipment_rented: JSON.stringify(this.equipmentRented),
+                    trucks: JSON.stringify(this.trucks),
+                    equipment: JSON.stringify(this.equipmentList)
+                };
+
+                console.log(payload);
+
+                this.$local
+                    .putRequest("/foreman_reports/"+that.reportId, payload)
+                    .then(function (response) {
+                        console.log(response);
+                        that.$toaster.success("Report saved successfully!");
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        that.$toaster.error("Failed to save the report.");
+                    });
+            }
         },
-        //   created: function () {
-        //     localStorage.removeItem('user_token');
-        //     global.vm.$local.token = '';
-        //   }
+        created: function () {
+            this.getPreviousWeekTimesheet(0);
+        }
     };
 </script>
 

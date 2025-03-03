@@ -39,7 +39,7 @@
                       <td>{{ report.safety_meeting ? 'Yes' : 'No' }}</td>
                       <td>{{ report.soil_condition }}</td>
                       <td>
-                        <router-link :to="'/user/foreman?report_date=' + report.report_date" class="">
+                        <router-link :to="'/user/foreman-report?report_date=' + report.report_date" class="">
                           View
                         </router-link>
                       </td>

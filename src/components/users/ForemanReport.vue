@@ -78,8 +78,9 @@
                                                     </div>
                                                 </div>
                                                 <div v-for="(truck, index) in trucks" :key="index" class="row">
-                                                    <div class="border-right col-9" style="line-height: 1.5rem;">
-                                                        {{ truck.name }}
+                                                    <div class="border-right col-9" style="line-height: 1.5rem;" @click="truck.editing = true">
+                                                        <span v-if="!truck.editing" >{{ truck.name }}</span>
+                                                        <input v-else type="text" v-model="truck.name" @blur="finishEditing(truck)" class="form-control" style="width: 100%;">
                                                     </div>
                                                     <div class="col-3">
                                                         <input type="text" name="hours" class="form-control"
@@ -255,6 +256,19 @@
             };
         },
         methods: {
+            ensureExtraLine() {
+                const ensureExtra = (array, emptyItem) => {
+                    if (array.length === 0 || array[array.length - 1].work !== '') {
+                        array.push(emptyItem);
+                    }
+                };
+
+                ensureExtra(this.workPerformedToday, { work: '+' });
+                ensureExtra(this.problemsDelays, { work: '+' });
+                ensureExtra(this.equipmentRented, { equipment: '+' });
+                ensureExtra(this.trucks, { name: '+', hours: '', editing: false });
+                ensureExtra(this.equipmentList, { name: '+', hours: '' });
+            },
             getPreviousWeekTimesheet(previousCount) {
                 let that = this;
                 this.previousCount = previousCount;
@@ -282,31 +296,10 @@
                         that.workPerformedToday = JSON.parse(data.data.work_performed_today);
                         that.problemsDelays = JSON.parse(data.data.problems_delays);
                         that.equipmentRented = JSON.parse(data.data.equipment_rented);
-                        that.trucks = JSON.parse(data.data.trucks);
+                        that.trucks = JSON.parse(data.data.trucks).map(truck => ({ ...truck, editing: false }));
                         that.equipmentList = JSON.parse(data.data.equipment);
 
-                        // make sure worked performed today is an array of 15 items
-                        if (that.workPerformedToday.length < 15) {
-                            for (let i = that.workPerformedToday.length; i < 15; i++) {
-                                that.workPerformedToday.push({
-                                    work: ''
-                                });
-                            }
-                        }
-                        if (that.problemsDelays.length < 5) {
-                            for (let i = that.problemsDelays.length; i < 5; i++) {
-                                that.problemsDelays.push({
-                                    work: ''
-                                });
-                            }
-                        }
-                        if (that.equipmentRented.length < 3) {
-                            for (let i = that.equipmentRented.length; i < 3; i++) {
-                                that.equipmentRented.push({
-                                    equipment: ''
-                                });
-                            }
-                        }
+                        that.ensureExtraLine();
 
                         return;
                     })
@@ -316,6 +309,8 @@
                     });
             },
             save() {
+                this.ensureExtraLine();
+
                 let that = this;
                 let payload = {
                     report_date: this.reportDate,
@@ -343,6 +338,15 @@
                         console.log(error);
                         that.$toaster.error("Failed to save the report.");
                     });
+            },
+            finishEditing(truck) {
+                truck.editing = false;
+                if (truck.name === "+") {
+                    const plusItemExists = this.trucks.some(t => t.name === "+");
+                    if (!plusItemExists) {
+                        this.trucks.push({ name: "+", hours: "", editing: false });
+                    }
+                }
             }
         },
         created: function () {

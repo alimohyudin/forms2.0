@@ -99,7 +99,7 @@ class Router
                     $controller->createReport($data);
                 } elseif ($method === "PUT" && $reportId) {
                     $data = json_decode(file_get_contents('php://input'), true);
-                    $controller->updateReport(id: $reportId, $data);
+                    $controller->updateReport($reportId, $data);
                 } elseif ($method === "DELETE" && $reportId) {
                     $controller->deleteReport($reportId);
                 } else {

@@ -309,7 +309,14 @@
                     });
             },
             save() {
-                this.ensureExtraLine();
+                // this.ensureExtraLine();
+                //remove extra lines
+                this.workPerformedToday = this.workPerformedToday.filter(work => work.work !== '+');
+                this.problemsDelays = this.problemsDelays.filter(work => work.work !== '+');
+                this.equipmentRented = this.equipmentRented.filter(work => work.work !== '+');
+                this.trucks = this.trucks.filter(truck => truck.name !== '+');
+                this.equipmentList = this.equipmentList.filter(equipment => equipment.name !== '+');
+                
 
                 let that = this;
                 let payload = {
